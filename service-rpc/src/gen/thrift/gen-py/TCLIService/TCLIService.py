@@ -25,6 +25,7 @@ class Iface(object):
          - req
 
         """
+        print("OpenSession-Iface")
         pass
 
     def CloseSession(self, req):
@@ -222,6 +223,7 @@ class Iface(object):
 
 class Client(Iface):
     def __init__(self, iprot, oprot=None):
+        print("init client")
         self._iprot = self._oprot = iprot
         if oprot is not None:
             self._oprot = oprot
@@ -233,6 +235,7 @@ class Client(Iface):
          - req
 
         """
+        print("OpenSession-client")
         self.send_OpenSession(req)
         return self.recv_OpenSession()
 
@@ -809,6 +812,7 @@ class Client(Iface):
          - req
 
         """
+        print("GetDelegationToken-client")
         self.send_GetDelegationToken(req)
         return self.recv_GetDelegationToken()
 
@@ -1058,15 +1062,29 @@ class Processor(Iface, TProcessor):
         self._processMap["UploadData"] = Processor.process_UploadData
         self._processMap["DownloadData"] = Processor.process_DownloadData
         self._on_message_begin = None
+        print("init Process")
 
     def on_message_begin(self, func):
         self._on_message_begin = func
 
     def process(self, iprot, oprot):
+        print('------------------------------------------')
+        print("process process")
+        # print(iprot) <thrift.protocol.TBinaryProtocol.TBinaryProtocol
         (name, type, seqid) = iprot.readMessageBegin()
+        # print("process readMessageBegin")
+        # print(self._processMap)
+        # print(name)
+        # if name == '':
+        #     print("process process end w/ none")
+        #     oprot.trans.flush()
+        #     return True
+        print("process process1")
         if self._on_message_begin:
+            print("process process2-1")
             self._on_message_begin(name, type, seqid)
         if name not in self._processMap:
+            print("process process2-2")
             iprot.skip(TType.STRUCT)
             iprot.readMessageEnd()
             x = TApplicationException(TApplicationException.UNKNOWN_METHOD, 'Unknown function %s' % (name))
@@ -1076,37 +1094,51 @@ class Processor(Iface, TProcessor):
             oprot.trans.flush()
             return
         else:
+            print("process process2-3")
             self._processMap[name](self, seqid, iprot, oprot)
+        print("process process end")
         return True
 
     def process_OpenSession(self, seqid, iprot, oprot):
+        print('------------------------------------------')
+        print("process_OpenSession")
         args = OpenSession_args()
         args.read(iprot)
         iprot.readMessageEnd()
-        result = OpenSession_result()
+        result = OpenSession_result() # 별의미없음 OpenSession_result class 생성. 데이터는 이후에 넣는거
+        # print("process_OpenSession-result:" + str(result))
         try:
             result.success = self._handler.OpenSession(args.req)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
+            print("process_OpenSession-TTransportException")
             raise
         except TApplicationException as ex:
             logging.exception('TApplication exception in handler')
             msg_type = TMessageType.EXCEPTION
             result = ex
+            print("process_OpenSession-TApplicationException")
         except Exception:
             logging.exception('Unexpected exception in handler')
             msg_type = TMessageType.EXCEPTION
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+            print("process_OpenSession-Exception")
         oprot.writeMessageBegin("OpenSession", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
 
+        print("process_OpenSession-End")
+        print('------------------------------------------')
+
     def process_CloseSession(self, seqid, iprot, oprot):
+        print('------------------------------------------')
+        print("process_CloseSession")
         args = CloseSession_args()
         args.read(iprot)
         iprot.readMessageEnd()
         result = CloseSession_result()
+        print("process_CloseSession-result:" + str(result))
         try:
             result.success = self._handler.CloseSession(args.req)
             msg_type = TMessageType.REPLY
@@ -1124,8 +1156,12 @@ class Processor(Iface, TProcessor):
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
+        print("process_CloseSession-End")
+        print('------------------------------------------')
 
     def process_GetInfo(self, seqid, iprot, oprot):
+        print('------------------------------------------')
+        print("process_GetInfo")
         args = GetInfo_args()
         args.read(iprot)
         iprot.readMessageEnd()
@@ -1149,6 +1185,7 @@ class Processor(Iface, TProcessor):
         oprot.trans.flush()
 
     def process_ExecuteStatement(self, seqid, iprot, oprot):
+        print("process_ExecuteStatement")
         args = ExecuteStatement_args()
         args.read(iprot)
         iprot.readMessageEnd()
@@ -1195,6 +1232,7 @@ class Processor(Iface, TProcessor):
         oprot.trans.flush()
 
     def process_GetCatalogs(self, seqid, iprot, oprot):
+        print("process_GetCatalogs")
         args = GetCatalogs_args()
         args.read(iprot)
         iprot.readMessageEnd()
@@ -1494,6 +1532,7 @@ class Processor(Iface, TProcessor):
         oprot.trans.flush()
 
     def process_GetDelegationToken(self, seqid, iprot, oprot):
+        print("GetDelegationToken")
         args = GetDelegationToken_args()
         args.read(iprot)
         iprot.readMessageEnd()
@@ -1672,9 +1711,11 @@ class OpenSession_args(object):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
             iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
             return
+        print("OpenSession_args-read")
         iprot.readStructBegin()
         while True:
             (fname, ftype, fid) = iprot.readFieldBegin()
+            # print((fname, ftype, fid))
             if ftype == TType.STOP:
                 break
             if fid == 1:
@@ -1684,9 +1725,11 @@ class OpenSession_args(object):
                 else:
                     iprot.skip(ftype)
             else:
+                print("OpenSession_args-else:" + str(ftype))
                 iprot.skip(ftype)
             iprot.readFieldEnd()
         iprot.readStructEnd()
+        print("OpenSession_args-end")
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
@@ -1730,8 +1773,10 @@ class OpenSession_result(object):
 
     def __init__(self, success=None,):
         self.success = success
+        print("OpenSession_result-init")
 
     def read(self, iprot):
+        print("OpenSession_result-read-begin")
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
             iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
             return
@@ -1752,10 +1797,15 @@ class OpenSession_result(object):
         iprot.readStructEnd()
 
     def write(self, oprot):
+        print("OpenSession_result-write:begin")
+        # print(oprot)
         if oprot._fast_encode is not None and self.thrift_spec is not None:
+            print("OpenSession_result:if1")
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
         oprot.writeStructBegin('OpenSession_result')
+        # print("OpenSession_result-write:begin-self.success")
+        # print(self.success)
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.STRUCT, 0)
             self.success.write(oprot)
@@ -3752,6 +3802,8 @@ class GetResultSetMetadata_result(object):
         iprot.readStructEnd()
 
     def write(self, oprot):
+        print("GetResultSetMetadata_result")
+        # print(self.success)
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
@@ -3877,9 +3929,11 @@ class FetchResults_result(object):
         iprot.readStructEnd()
 
     def write(self, oprot):
+        print("FetchResults_result-write")
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
+        # print(self.success)
         oprot.writeStructBegin('FetchResults_result')
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.STRUCT, 0)

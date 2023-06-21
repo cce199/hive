@@ -3179,8 +3179,10 @@ class TOpenSessionReq(object):
         self.username = username
         self.password = password
         self.configuration = configuration
+        print("TOpenSessionReq-init")
 
     def read(self, iprot):
+        print("TOpenSessionReq-read")
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
             iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
             return
@@ -3221,6 +3223,7 @@ class TOpenSessionReq(object):
         iprot.readStructEnd()
 
     def write(self, oprot):
+        print("TOpenSessionReq-write")
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
@@ -3277,12 +3280,15 @@ class TOpenSessionResp(object):
 
 
     def __init__(self, status=None, serverProtocolVersion=9, sessionHandle=None, configuration=None,):
+        # print("TOpenSessionResp-init")
         self.status = status
         self.serverProtocolVersion = serverProtocolVersion
         self.sessionHandle = sessionHandle
         self.configuration = configuration
+        # print("TOpenSessionResp-init-serverProtocolVersion" + str(serverProtocolVersion))
 
     def read(self, iprot):
+        print("TOpenSessionResp-read")
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
             iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
             return
@@ -3325,17 +3331,22 @@ class TOpenSessionResp(object):
         iprot.readStructEnd()
 
     def write(self, oprot):
+        # print("TOpenSessionResp-write")
+        # print(repr(self))
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
+        # print("TOpenSessionResp-write-self.status")
+        # print(self.status)
         oprot.writeStructBegin('TOpenSessionResp')
         if self.status is not None:
             oprot.writeFieldBegin('status', TType.STRUCT, 1)
             self.status.write(oprot)
             oprot.writeFieldEnd()
         if self.serverProtocolVersion is not None:
-            oprot.writeFieldBegin('serverProtocolVersion', TType.I32, 2)
-            oprot.writeI32(self.serverProtocolVersion)
+            # print("TOpenSessionResp-write-self.serverProtocolVersion: " + str(self.serverProtocolVersion))
+            oprot.writeFieldBegin('serverProtocolVersion', TType.I16, 2)
+            oprot.writeI16(self.serverProtocolVersion)
             oprot.writeFieldEnd()
         if self.sessionHandle is not None:
             oprot.writeFieldBegin('sessionHandle', TType.STRUCT, 3)
@@ -3349,6 +3360,8 @@ class TOpenSessionResp(object):
                 oprot.writeString(viter142.encode('utf-8') if sys.version_info[0] == 2 else viter142)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
+        # print("TOpenSessionResp-write-self.status2")
+        # print(oprot)
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
@@ -4024,6 +4037,7 @@ class TExecuteStatementResp(object):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
             iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
             return
+        print("TExecuteStatementResp-read")
         iprot.readStructBegin()
         while True:
             (fname, ftype, fid) = iprot.readFieldBegin()
@@ -4050,6 +4064,7 @@ class TExecuteStatementResp(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
+        print("TExecuteStatementResp-write")
         oprot.writeStructBegin('TExecuteStatementResp')
         if self.status is not None:
             oprot.writeFieldBegin('status', TType.STRUCT, 1)
@@ -5985,9 +6000,11 @@ class TGetOperationStatusResp(object):
         iprot.readStructBegin()
         while True:
             (fname, ftype, fid) = iprot.readFieldBegin()
+            print((fname, ftype, fid))
             if ftype == TType.STOP:
                 break
             if fid == 1:
+                print("TGetOperationStatusResp-status")
                 if ftype == TType.STRUCT:
                     self.status = TStatus()
                     self.status.read(iprot)
@@ -6040,6 +6057,7 @@ class TGetOperationStatusResp(object):
                 else:
                     iprot.skip(ftype)
             elif fid == 11:
+                print("TGetOperationStatusResp-read-numModifiedRows")
                 if ftype == TType.I64:
                     self.numModifiedRows = iprot.readI64()
                 else:
@@ -6053,6 +6071,8 @@ class TGetOperationStatusResp(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
+        print("TGetOperationStatusResp")
+        # print(self)
         oprot.writeStructBegin('TGetOperationStatusResp')
         if self.status is not None:
             oprot.writeFieldBegin('status', TType.STRUCT, 1)
@@ -6092,9 +6112,12 @@ class TGetOperationStatusResp(object):
             oprot.writeFieldEnd()
         if self.progressUpdateResponse is not None:
             oprot.writeFieldBegin('progressUpdateResponse', TType.STRUCT, 10)
+            print("TGetOperationStatusResp-write-progressUpdateResponse" + str(self.numModifiedRows))
+            # print(self.progressUpdateResponse)
             self.progressUpdateResponse.write(oprot)
             oprot.writeFieldEnd()
         if self.numModifiedRows is not None:
+            print("TGetOperationStatusResp-write-numModifiedRows" + str(self.numModifiedRows))
             oprot.writeFieldBegin('numModifiedRows', TType.I64, 11)
             oprot.writeI64(self.numModifiedRows)
             oprot.writeFieldEnd()
@@ -6390,6 +6413,7 @@ class TGetResultSetMetadataReq(object):
         iprot.readStructEnd()
 
     def write(self, oprot):
+        print("TGetResultSetMetadataReq")
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
@@ -6458,6 +6482,7 @@ class TGetResultSetMetadataResp(object):
         iprot.readStructEnd()
 
     def write(self, oprot):
+        print("TGetResultSetMetadataResp")
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return

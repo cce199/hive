@@ -17,7 +17,7 @@
 # under the License.
 #
 
-from TTransport import *
+from .TTransport import *
 import os
 import errno
 import socket
@@ -75,13 +75,13 @@ class TSocket(TSocketBase):
         self.handle.settimeout(self._timeout)
         try:
           self.handle.connect(res[4])
-        except socket.error, e:
+        except socket.error as e:
           if res is not res0[-1]:
             continue
           else:
             raise e
         break
-    except socket.error, e:
+    except socket.error as e:
       if self._unix_socket:
         message = 'Could not connect to socket %s' % self._unix_socket
       else:
@@ -130,7 +130,7 @@ class TServerSocket(TSocketBase, TServerTransportBase):
       tmp = socket.socket(res[0], res[1])
       try:
         tmp.connect(res[4])
-      except socket.error, err:
+      except socket.error as err:
         eno, message = err.args
         if eno == errno.ECONNREFUSED:
           os.unlink(res[4])

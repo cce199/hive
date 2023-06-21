@@ -17,7 +17,8 @@
 # under the License.
 #
 
-import BaseHTTPServer
+# import BaseHTTPServer
+import http.server as BaseHTTPServer
 
 from thrift.server import TServer
 from thrift.transport import TTransport

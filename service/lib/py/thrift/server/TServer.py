@@ -22,7 +22,7 @@ import sys
 import os
 import traceback
 import threading
-import Queue
+import queue
 
 from thrift.Thrift import TProcessor
 from thrift.transport import TTransport
@@ -81,9 +81,9 @@ class TSimpleServer(TServer):
       try:
         while True:
           self.processor.process(iprot, oprot)
-      except TTransport.TTransportException, tx:
+      except TTransport.TTransportException as tx:
         pass
-      except Exception, x:
+      except Exception as x:
         logging.exception(x)
 
       itrans.close()
@@ -105,7 +105,7 @@ class TThreadedServer(TServer):
         t.start()
       except KeyboardInterrupt:
         raise
-      except Exception, x:
+      except Exception as x:
         logging.exception(x)
 
   def handle(self, client):
@@ -116,9 +116,9 @@ class TThreadedServer(TServer):
     try:
       while True:
         self.processor.process(iprot, oprot)
-    except TTransport.TTransportException, tx:
+    except TTransport.TTransportException as tx:
       pass
-    except Exception, x:
+    except Exception as x:
       logging.exception(x)
 
     itrans.close()
@@ -143,7 +143,7 @@ class TThreadPoolServer(TServer):
       try:
         client = self.clients.get()
         self.serveClient(client)
-      except Exception, x:
+      except Exception as x:
         logging.exception(x)
 
   def serveClient(self, client):
@@ -155,9 +155,9 @@ class TThreadPoolServer(TServer):
     try:
       while True:
         self.processor.process(iprot, oprot)
-    except TTransport.TTransportException, tx:
+    except TTransport.TTransportException as tx:
       pass
-    except Exception, x:
+    except Exception as x:
       logging.exception(x)
 
     itrans.close()
@@ -169,7 +169,7 @@ class TThreadPoolServer(TServer):
       try:
         t = threading.Thread(target = self.serveThread)
         t.start()
-      except Exception, x:
+      except Exception as x:
         logging.exception(x)
 
     # Pump the socket for clients
@@ -178,7 +178,7 @@ class TThreadPoolServer(TServer):
       try:
         client = self.serverTransport.accept()
         self.clients.put(client)
-      except Exception, x:
+      except Exception as x:
         logging.exception(x)
 
 
@@ -205,7 +205,7 @@ class TForkingServer(TServer):
     def try_close(file):
       try:
         file.close()
-      except IOError, e:
+      except IOError as e:
         logging.warning(e, exc_info=True)
 
 
@@ -238,9 +238,9 @@ class TForkingServer(TServer):
             try:
               while True:
                 self.processor.process(iprot, oprot)
-            except TTransport.TTransportException, tx:
+            except TTransport.TTransportException as tx:
               pass
-            except Exception, e:
+            except Exception as e:
               logging.exception(e)
               ecode = 1
           finally:
@@ -249,9 +249,9 @@ class TForkingServer(TServer):
 
           os._exit(ecode)
 
-      except TTransport.TTransportException, tx:
+      except TTransport.TTransportException as tx:
         pass
-      except Exception, x:
+      except Exception as x:
         logging.exception(x)
 
 
