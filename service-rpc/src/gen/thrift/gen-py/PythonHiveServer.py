@@ -223,7 +223,10 @@ class SparkThriftHandler:
                          infoMessages="infoMessages44",
                          sqlState="ENDRUNNING")
         rows = [TRow([TColumnValue(stringVal=TStringValue(value="1")),TColumnValue(stringVal=TStringValue(value="ace"))])
-                 ,TRow([TColumnValue(stringVal=TStringValue(value="12")),TColumnValue(stringVal=TStringValue(value="Vert"))])]
+                 ,TRow([TColumnValue(stringVal=TStringValue(value="12")),TColumnValue(stringVal=TStringValue(value="Vert"))])
+                 ,TRow([TColumnValue(stringVal=TStringValue(value="12")),TColumnValue(stringVal=TStringValue(value="Vert"))])
+                 ,TRow([TColumnValue(stringVal=TStringValue(value="12")),TColumnValue(stringVal=TStringValue(value="Vert"))])
+                 ]
         columns = [TColumn(stringVal=TStringColumn(values=[b"ido"],nulls=b""))
                     ,TColumn(stringVal=TStringColumn(values=[b"namesx"],nulls=b""))]
         results = TRowSet(
@@ -233,7 +236,7 @@ class SparkThriftHandler:
             columns=columns,
             # [b"id", b"names"],
             # binaryColumns=b'',
-            columnCount=2
+            columnCount=10
         )
         if self.queryCnt > 2:
             results = TRowSet(
