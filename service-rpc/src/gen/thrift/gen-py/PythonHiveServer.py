@@ -39,9 +39,9 @@ from thrift.transport import TSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
+from processHandler import dataProcessSparkHandler
 
-
-class SparkThriftHandler:
+class ThriftProcessHandler:
 
     def __init__(self):
         self.log = {}
@@ -68,7 +68,7 @@ class SparkThriftHandler:
         status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS)
         result = TCloseSessionResp(status=status)
         return result
-    
+
     def GetInfo(self, req):
         print('------------------------------------------')
         print('SparkThriftHandler-GetInfo')
@@ -76,6 +76,10 @@ class SparkThriftHandler:
     def ExecuteStatement(self, req):
         print("ExecuteStatement")
         print(req.statement)
+        sparkHndler = dataProcessSparkHandler()
+        spark.createExecutor(sql=req.statement)
+        result = spark.executQuery("select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
+        print(result)
         # req -> TExecuteStatementReq(sessionHandle=TSessionHandle(sessionId=THandleIdentifier(guid=b'guid', secret=b'secret')), statement='select 1', confOverlay={}, runAsync=True, queryTimeout=0)
         # req.sessionHandle -> TSessionHandle(sessionId=THandleIdentifier(guid=b'guid', secret=b'secret'))
         # print(req.sessionHandle)
@@ -276,7 +280,7 @@ class SparkThriftHandler:
         print("DownloadData")
 
 if __name__ == '__main__':
-    handler = SparkThriftHandler()
+    handler = ThriftProcessHandler()
     processor = TCLIService.Processor(handler)
     transport = TSocket.TServerSocket(host='127.0.0.1', port=9091)
     # tfactory = TTransport.TBufferedTransportFactory()
