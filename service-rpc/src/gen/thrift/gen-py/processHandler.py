@@ -34,7 +34,7 @@ class dataProcessSparkHandler():
             'spark.kubernetes.namespace': "spark-operator",
             "spark.kubernetes.node.selector.alpha.eksctl.io/nodegroup-name": "ng-memory-5-spark",
         }
-        sparkContext = driver.getSparkContext(config)
+        sparkContext = self.driver.getSparkContext(config)
 
         from pyspark.sql import SparkSession
         self.spark = SparkSession(sparkContext)
