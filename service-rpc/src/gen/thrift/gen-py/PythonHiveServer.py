@@ -77,7 +77,9 @@ class ThriftProcessHandler:
         print("ExecuteStatement")
         print(req.statement)
         sparkHndler = dataProcessSparkHandler()
+        time.sleep(20)
         sparkHndler.createExecutor()
+        time.sleep(20)
 
         result = sparkHndler.executQuery(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
         print(result)
