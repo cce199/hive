@@ -88,13 +88,13 @@ class ThriftProcessHandler:
         # result = sparkHndler.executQuery(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
         # print(result)
         
-        self.driver = K8sSparkDriver(cpu=cores, memory=memory, mount_path=mount_path, remote=True)
+        self.driver = K8sSparkDriver(cpu="4", memory="20Gi", volume="spark-shared-volume",mount_path="/root", remote=True)
         time.sleep(30)
         
         config = {
-            "spark.executor.instances": executor_instances,
-            "spark.executor.memory": executor_memory,
-            "spark.executor.cores": executor_cores,
+            "spark.executor.instances": "2",
+            "spark.executor.memory": "15g",
+            "spark.executor.cores": "5",
             # "spark.driver.memory": "10g",
             "spark.driver.bindAddress": "0.0.0.0",
             "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
