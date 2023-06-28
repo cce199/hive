@@ -112,6 +112,7 @@ class ThriftProcessHandler:
         self.spark = SparkSession(sparkContext)
         time.sleep(20)
         
+        query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'"        
         result = self.spark.sql(query).collect()
         print(result)
         # req -> TExecuteStatementReq(sessionHandle=TSessionHandle(sessionId=THandleIdentifier(guid=b'guid', secret=b'secret')), statement='select 1', confOverlay={}, runAsync=True, queryTimeout=0)
