@@ -77,7 +77,7 @@ class ThriftProcessHandler:
         print("ExecuteStatement")
         print(req.statement)
         sparkHndler = dataProcessSparkHandler()
-        sparkHndler.createExecutor(sql=req.statement)
+        sparkHndler.createExecutor(query=req.statement)
         result = sparkHndler.executQuery("select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
         print(result)
         # req -> TExecuteStatementReq(sessionHandle=TSessionHandle(sessionId=THandleIdentifier(guid=b'guid', secret=b'secret')), statement='select 1', confOverlay={}, runAsync=True, queryTimeout=0)
