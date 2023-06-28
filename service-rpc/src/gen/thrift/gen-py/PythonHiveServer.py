@@ -40,6 +40,7 @@ from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
 from processHandler import dataProcessSparkHandler
+import time
 
 class ThriftProcessHandler:
 
