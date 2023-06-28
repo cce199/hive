@@ -16,7 +16,7 @@ class dataProcessSparkHandler():
     def getDriver(self):
         return self.driver
 
-    def getSpark(self, query, cores="4", memory="20Gi", mount_path="/root",
+    def getSpark(self, query, cores="4", memory="20Gi", mount_path="/root",\
                  executor_instances="2", executor_memory="15g", executor_cores="5"):
         # return self.spark
         from sparkdriver import K8sSparkDriver
