@@ -89,7 +89,7 @@ class ThriftProcessHandler:
         # print(result)
         
         self.driver = K8sSparkDriver(cpu="4", memory="20Gi", volume="spark-shared-volume",mount_path="/root", remote=True)
-        time.sleep(30)
+        # time.sleep(30)
         
         config = {
             "spark.executor.instances": "2",
@@ -106,11 +106,11 @@ class ThriftProcessHandler:
             'spark.kubernetes.namespace': "spark-operator",
             "spark.kubernetes.node.selector.alpha.eksctl.io/nodegroup-name": "ng-memory-5-spark",
         }
-        time.sleep(20)
+        # time.sleep(20)
         sparkContext = self.driver.getSparkContext(config)
 
         self.spark = SparkSession(sparkContext)
-        time.sleep(20)
+        # time.sleep(20)
         
         query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'"        
         result = self.spark.sql(query).collect()
