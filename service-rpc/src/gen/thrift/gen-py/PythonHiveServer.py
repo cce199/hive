@@ -39,8 +39,10 @@ from thrift.transport import TSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
-from processHandler import dataProcessSparkHandler
+# from processHandler import dataProcessSparkHandler
 import time
+from sparkdriver import K8sSparkDriver
+from pyspark.sql import SparkSession
 
 class ThriftProcessHandler:
 
@@ -77,13 +79,40 @@ class ThriftProcessHandler:
     def ExecuteStatement(self, req):
         print("ExecuteStatement")
         print(req.statement)
-        sparkHndler = dataProcessSparkHandler()
-        sparkHndler.getSpark(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
+        # sparkHndler = dataProcessSparkHandler()
+        # sparkHndler.getSpark(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
         # time.sleep(20)
         # sparkHndler.createExecutor()
         # time.sleep(20)
 
         # result = sparkHndler.executQuery(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
+        # print(result)
+        
+        self.driver = K8sSparkDriver(cpu=cores, memory=memory, mount_path=mount_path, remote=True)
+        time.sleep(30)
+        
+        config = {
+            "spark.executor.instances": executor_instances,
+            "spark.executor.memory": executor_memory,
+            "spark.executor.cores": executor_cores,
+            # "spark.driver.memory": "10g",
+            "spark.driver.bindAddress": "0.0.0.0",
+            "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
+            "spark.hadoop.fs.s3.impl": "com.amazon.ws.emr.hadoop.fs.EmrFileSystem",
+            "spark.hadoop.fs.s3n.impl": "com.amazon.ws.emr.hadoop.fs.EmrFileSystem",
+            "spark.hadoop.fs.s3bfs.impl": "org.apache.hadoop.fs.s3.S3FileSystem",
+            "spark.hadoop.fs.s3.buffer.dir": "/opt/mnt/s3",
+            "spark.executorEnv.SPARK_USER": "root",
+            'spark.kubernetes.namespace': "spark-operator",
+            "spark.kubernetes.node.selector.alpha.eksctl.io/nodegroup-name": "ng-memory-5-spark",
+        }
+        time.sleep(20)
+        sparkContext = self.driver.getSparkContext(config)
+
+        self.spark = SparkSession(sparkContext)
+        time.sleep(20)
+        
+        result = self.spark.sql(query).collect()
         print(result)
         # req -> TExecuteStatementReq(sessionHandle=TSessionHandle(sessionId=THandleIdentifier(guid=b'guid', secret=b'secret')), statement='select 1', confOverlay={}, runAsync=True, queryTimeout=0)
         # req.sessionHandle -> TSessionHandle(sessionId=THandleIdentifier(guid=b'guid', secret=b'secret'))
