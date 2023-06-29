@@ -79,42 +79,45 @@ class ThriftProcessHandler:
     def ExecuteStatement(self, req):
         print("ExecuteStatement")
         print(req.statement)
-        # sparkHndler = dataProcessSparkHandler()
+        sparkHndler = dataProcessSparkHandler()
         # sparkHndler.getSpark(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
         # time.sleep(20)
-        # sparkHndler.createExecutor()
-        # time.sleep(20)
+        sparkHndler.createExecutor()
+        time.sleep(20)
 
-        # result = sparkHndler.executQuery(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
+        result = sparkHndler.executQuery(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
+        print(result)
+        
+        # delete
+        # self.driver = K8sSparkDriver(cpu="4", memory="20Gi", volume="spark-shared-volume",mount_path="/root", remote=True)
+        # # time.sleep(30)
+        
+        # config = {
+        #     "spark.executor.instances": "2",
+        #     "spark.executor.memory": "15g",
+        #     "spark.executor.cores": "5",
+        #     # "spark.driver.memory": "10g",
+        #     "spark.driver.bindAddress": "0.0.0.0",
+        #     "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
+        #     "spark.hadoop.fs.s3.impl": "com.amazon.ws.emr.hadoop.fs.EmrFileSystem",
+        #     "spark.hadoop.fs.s3n.impl": "com.amazon.ws.emr.hadoop.fs.EmrFileSystem",
+        #     "spark.hadoop.fs.s3bfs.impl": "org.apache.hadoop.fs.s3.S3FileSystem",
+        #     "spark.hadoop.fs.s3.buffer.dir": "/opt/mnt/s3",
+        #     "spark.executorEnv.SPARK_USER": "root",
+        #     'spark.kubernetes.namespace': "spark-operator",
+        #     "spark.kubernetes.node.selector.alpha.eksctl.io/nodegroup-name": "ng-memory-5-spark",
+        # }
+        # # time.sleep(20)
+        # sparkContext = self.driver.getSparkContext(config)
+
+        # self.spark = SparkSession(sparkContext)
+        # # time.sleep(20)
+        
+        # query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'"        
+        # result = self.spark.sql(query).collect()
         # print(result)
         
-        self.driver = K8sSparkDriver(cpu="4", memory="20Gi", volume="spark-shared-volume",mount_path="/root", remote=True)
-        # time.sleep(30)
         
-        config = {
-            "spark.executor.instances": "2",
-            "spark.executor.memory": "15g",
-            "spark.executor.cores": "5",
-            # "spark.driver.memory": "10g",
-            "spark.driver.bindAddress": "0.0.0.0",
-            "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
-            "spark.hadoop.fs.s3.impl": "com.amazon.ws.emr.hadoop.fs.EmrFileSystem",
-            "spark.hadoop.fs.s3n.impl": "com.amazon.ws.emr.hadoop.fs.EmrFileSystem",
-            "spark.hadoop.fs.s3bfs.impl": "org.apache.hadoop.fs.s3.S3FileSystem",
-            "spark.hadoop.fs.s3.buffer.dir": "/opt/mnt/s3",
-            "spark.executorEnv.SPARK_USER": "root",
-            'spark.kubernetes.namespace': "spark-operator",
-            "spark.kubernetes.node.selector.alpha.eksctl.io/nodegroup-name": "ng-memory-5-spark",
-        }
-        # time.sleep(20)
-        sparkContext = self.driver.getSparkContext(config)
-
-        self.spark = SparkSession(sparkContext)
-        # time.sleep(20)
-        
-        query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'"        
-        result = self.spark.sql(query).collect()
-        print(result)
         # req -> TExecuteStatementReq(sessionHandle=TSessionHandle(sessionId=THandleIdentifier(guid=b'guid', secret=b'secret')), statement='select 1', confOverlay={}, runAsync=True, queryTimeout=0)
         # req.sessionHandle -> TSessionHandle(sessionId=THandleIdentifier(guid=b'guid', secret=b'secret'))
         # print(req.sessionHandle)
