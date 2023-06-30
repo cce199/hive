@@ -100,7 +100,7 @@ class dataProcessSparkHandler():
                 #     TTypeQualifiers(
                 #         qualifiers={"string":TTypeQualifierValue(i32Value=10)})
                 
-            rtnTColumnDescList.append(TColumnDesc(columnName=col.Name,typeDesc=TTypeDesc(types=[currTypeEntry]), position=colPos+1))
+            rtnTColumnDescList.append(TColumnDesc(columnName=col.name,typeDesc=TTypeDesc(types=[currTypeEntry]), position=colPos+1))
         self.schema = TTableSchema(columns=rtnTColumnDescList)
         return self.schema
 
