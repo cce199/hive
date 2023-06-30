@@ -80,43 +80,43 @@ class dataProcessSparkHandler():
             colType = type(col.dataType)
             if colType == pyspark.sql.types.BooleanType:
                 currTtype = TTypeId.BOOLEAN_TYPE
-                self.colTColumnType.add("bool")
+                self.colTColumnType.append("bool")
             elif colType == pyspark.sql.types.BinaryType:
                 currTtype = TTypeId.BINARY_TYPE
-                self.colTColumnType.add("binary")
+                self.colTColumnType.append("binary")
             elif colType == pyspark.sql.types.ByteType:
                 currTtype = TTypeId.BINARY_TYPE
-                self.colTColumnType.add("byte")
+                self.colTColumnType.append("byte")
             elif colType == pyspark.sql.types.DateType:
                 currTtype = TTypeId.DATE_TYPE
-                self.colTColumnType.add("string")
+                self.colTColumnType.append("string")
             elif colType in [ pyspark.sql.types.ShortType ]:
                 currTtype = TTypeId.SMALLINT_TYPE
-                self.colTColumnType.add("i16")
+                self.colTColumnType.append("i16")
             elif colType in [ pyspark.sql.types.IntegerType ]:
                 currTtype = TTypeId.INT_TYPE
-                self.colTColumnType.add("i32")
+                self.colTColumnType.append("i32")
             elif colType in [ pyspark.sql.types.LongType ]:
                 currTtype = TTypeId.BIGINT_TYPE
-                self.colTColumnType.add("i64")
+                self.colTColumnType.append("i64")
             elif colType in [ pyspark.sql.types.DoubleType ]:
                 currTtype = TTypeId.DOUBLE_TYPE
-                self.colTColumnType.add("double")
+                self.colTColumnType.append("double")
             elif colType in [ pyspark.sql.types.FloatType, pyspark.sql.types.DecimalType ]:
                 currTtype = TTypeId.FLOAT_TYPE
-                self.colTColumnType.add("double")
+                self.colTColumnType.append("double")
             elif colType in [ pyspark.sql.types.TimestampType ]:
                 currTtype = TTypeId.TIMESTAMP_TYPE
-                self.colTColumnType.add("string")
+                self.colTColumnType.append("string")
             elif colType in [ pyspark.sql.types.StringType, pyspark.sql.types.CharType, pyspark.sql.types.VarcharType ]:
                 currTtype = TTypeId.STRING_TYPE
-                self.colTColumnType.add("string")
+                self.colTColumnType.append("string")
             elif colType in [ pyspark.sql.types.MapType ]:
                 currTtype = TTypeId.MAP_TYPE
-                self.colTColumnType.add("string")
+                self.colTColumnType.append("string")
             else:
                 currTtype = TTypeId.STRING_TYPE
-                self.colTColumnType.add("string")
+                self.colTColumnType.append("string")
             currTypeEntry = TTypeEntry(primitiveEntry=
             TPrimitiveTypeEntry(
                 type=currTtype,))
@@ -136,14 +136,14 @@ class dataProcessSparkHandler():
         # self.colTColumnType
         rtnCols = []
         for colType in self.colTColumnType:
-            rtnCols.add([])
+            rtnCols.append([])
         for row in self.resultRows:
             # for (colType, ord) in zip(self.colTColumnType, range(len(self.colTColumnType))):
             for (colType, ord, colVal) in zip(self.colTColumnType, range(len(self.colTColumnType)), row ):
                if colType == 'string':
-                   rtnCols[ord].add( bytes(str(colVal), 'utf-8'))
+                   rtnCols[ord].append( bytes(str(colVal), 'utf-8'))
                else:
-                   rtnCols[ord].add(colVal)
+                   rtnCols[ord].append(colVal)
         for (colType, ord) in zip(self.colTColumnType, range(len(self.colTColumnType))):
             currCol = TColumn(
                 boolVal = TBoolColumn(values=rtnCols[ord]) if colType == 'bool' else None,
@@ -155,7 +155,7 @@ class dataProcessSparkHandler():
                 stringVal = TStringColumn(values=rtnCols[ord], nulls="") if colType == 'string' else None,
                 binaryVal = TBinaryColumn(values=rtnCols[ord]) if colType == 'byte' else None,
             )
-            returnRow.add(currCol)
+            returnRow.append(currCol)
             # [TColumn(stringVal=TStringColumn(values=[b"ido"],nulls=b""))
             #             ,TColumn(stringVal=TStringColumn(values=[b"namesx"],nulls=b""))]
             # except IndexError as e:
