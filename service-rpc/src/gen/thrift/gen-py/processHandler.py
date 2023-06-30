@@ -152,7 +152,7 @@ class dataProcessSparkHandler():
                 i32Val = TI32Column(values=rtnCols[ord]) if colType == 'i32' else None,
                 i64Val = TI64Column(values=rtnCols[ord]) if colType == 'i64' else None,
                 doubleVal = TDoubleColumn(values=rtnCols[ord]) if colType == 'double' else None,
-                stringVal = TStringColumn(values=rtnCols[ord], nulls="") if colType == 'string' else None,
+                stringVal = TStringColumn(values=rtnCols[ord], nulls=b"") if colType == 'string' else None,
                 binaryVal = TBinaryColumn(values=rtnCols[ord]) if colType == 'byte' else None,
             )
             returnRow.append(currCol)
