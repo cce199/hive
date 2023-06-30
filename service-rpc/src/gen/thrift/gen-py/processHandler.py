@@ -19,7 +19,7 @@ class dataProcessSparkHandler():
         self.fqueryCnt = 0
 
     def hasSparkContext(self):
-        if self.hasSparkContext:
+        if self.sparkContext:
             return True
         return False
     # def getDriver(self):
