@@ -50,6 +50,7 @@ class ThriftProcessHandler:
         self.log = {}
         self.queryCnt = 0
         print("Initialized")
+        self.sparkHndler = None
 
     def OpenSession(self, req):
         print('------------------------------------------')
@@ -79,45 +80,16 @@ class ThriftProcessHandler:
     def ExecuteStatement(self, req):
         print("ExecuteStatement")
         print(req.statement)
-        sparkHndler = dataProcessSparkHandler()
-        # sparkHndler.getSpark(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
-        # time.sleep(20)
-        sparkHndler.createExecutor()
-        time.sleep(20)
+        if False:
+            if not self.sparkHndler: # or 추후에 query에 driver option을 바꾸는 명령/hint가 들어오면
+                self.sparkHndler = dataProcessSparkHandler()
+            # sparkHndler.getSpark(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
+            # time.sleep(20)
+            if not self.sparkHndler.hasSparkContext():
+                self.sparkHndler.createExecutor()
+                time.sleep(20)
 
-        result = sparkHndler.executQuery(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
-        print(result)
-        
-        # delete
-        # self.driver = K8sSparkDriver(cpu="4", memory="20Gi", volume="spark-shared-volume",mount_path="/root", remote=True)
-        # # time.sleep(30)
-        
-        # config = {
-        #     "spark.executor.instances": "2",
-        #     "spark.executor.memory": "15g",
-        #     "spark.executor.cores": "5",
-        #     # "spark.driver.memory": "10g",
-        #     "spark.driver.bindAddress": "0.0.0.0",
-        #     "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
-        #     "spark.hadoop.fs.s3.impl": "com.amazon.ws.emr.hadoop.fs.EmrFileSystem",
-        #     "spark.hadoop.fs.s3n.impl": "com.amazon.ws.emr.hadoop.fs.EmrFileSystem",
-        #     "spark.hadoop.fs.s3bfs.impl": "org.apache.hadoop.fs.s3.S3FileSystem",
-        #     "spark.hadoop.fs.s3.buffer.dir": "/opt/mnt/s3",
-        #     "spark.executorEnv.SPARK_USER": "root",
-        #     'spark.kubernetes.namespace': "spark-operator",
-        #     "spark.kubernetes.node.selector.alpha.eksctl.io/nodegroup-name": "ng-memory-5-spark",
-        # }
-        # # time.sleep(20)
-        # sparkContext = self.driver.getSparkContext(config)
-
-        # self.spark = SparkSession(sparkContext)
-        # # time.sleep(20)
-        
-        # query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'"        
-        # result = self.spark.sql(query).collect()
-        # print(result)
-        
-        
+            self.sparkHndler.executQuery(query="select base_date, count(*) cnt from common.dw_eventlogall where base_date >= date '2023-06-20' group by 1 order by 1")        
         # req -> TExecuteStatementReq(sessionHandle=TSessionHandle(sessionId=THandleIdentifier(guid=b'guid', secret=b'secret')), statement='select 1', confOverlay={}, runAsync=True, queryTimeout=0)
         # req.sessionHandle -> TSessionHandle(sessionId=THandleIdentifier(guid=b'guid', secret=b'secret'))
         # print(req.sessionHandle)
@@ -131,9 +103,9 @@ class ThriftProcessHandler:
             operationType=TOperationType.EXECUTE_STATEMENT,
             hasResultSet=True,
             modifiedRowCount=2 )
-        result = TExecuteStatementResp(status=status,
+        executeStatementResult = TExecuteStatementResp(status=status,
             operationHandle=operationHandle)
-        return result
+        return executeStatementResult
 
     def GetTypeInfo(self, req):
         print("GetTypeInfo")
@@ -230,28 +202,38 @@ class ThriftProcessHandler:
         # TGetResultSetMetadataResp
         #     - status
         #     - schema
-        status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS,
-                         infoMessages="infoMessages33",
-                         sqlState="ENDRUNNING")
-        typeEntry1 = TTypeEntry(primitiveEntry=
+        if not self.sparkHndler: # or 추후에 query에 driver option을 바꾸는 명령/hint가 들어오면
+            # spark not initialized
+            # status Error
+            status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS,
+                            infoMessages="infoMessages33",
+                            sqlState="ENDRUNNING")
+            typeEntry1 = TTypeEntry(primitiveEntry=
             TPrimitiveTypeEntry(
                 type=TTypeId.STRING_TYPE,
                 # typeQualifiers=
                 #     TTypeQualifiers(
                 #         qualifiers={"string":TTypeQualifierValue(i32Value=10)})
             ))
-            # arrayEntry=,
-            # mapEntry=,
-            # structEntry=,
-            # unionEntry=,
-            # userDefinedTypeEntry=)
-        typeEntry2 = TTypeEntry(primitiveEntry=TPrimitiveTypeEntry(type=TTypeId.STRING_TYPE))
-        col1 = TColumnDesc(columnName="idmeta",typeDesc=TTypeDesc(types=[typeEntry1]), position=1)
-        col2 = TColumnDesc(columnName="namesm",typeDesc=TTypeDesc(types=[typeEntry2]), position=2)
-        # col1 = TColumnDesc(columnName="idmeta", position=1)
-        # col2 = TColumnDesc(columnName="namesm", position=2)
-        schema = TTableSchema(columns=[col1,col2])
-        result = TGetResultSetMetadataResp(status=status, schema=schema)
+                # arrayEntry=,
+                # mapEntry=,
+                # structEntry=,
+                # unionEntry=,
+                # userDefinedTypeEntry=)
+            typeEntry2 = TTypeEntry(primitiveEntry=TPrimitiveTypeEntry(type=TTypeId.STRING_TYPE))
+            col1 = TColumnDesc(columnName="idmeta",typeDesc=TTypeDesc(types=[typeEntry1]), position=1)
+            col2 = TColumnDesc(columnName="namesm",typeDesc=TTypeDesc(types=[typeEntry2]), position=2)
+            # col1 = TColumnDesc(columnName="idmeta", position=1)
+            # col2 = TColumnDesc(columnName="namesm", position=2)
+            schema = TTableSchema(columns=[col1,col2])
+            result = TGetResultSetMetadataResp(status=status, schema=schema)
+            return result
+        
+        status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS,
+                            infoMessages="infoMessages33",
+                            sqlState="ENDRUNNING")
+        resultSchema = self.sparkHndler.getResultSchema()
+        result = TGetResultSetMetadataResp(status=status, schema=resultSchema)
         # GetResultSetMetadata_result
         return result
 
@@ -261,39 +243,42 @@ class ThriftProcessHandler:
         # - status
         # - hasMoreRows
         # - results
-        status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS,
+        rows = [TRow([])]
+        if not self.sparkHndler: # or 추후에 query에 driver option을 바꾸는 명령/hint가 들어오면
+            status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS,
                          infoMessages="infoMessages44",
                          sqlState="ENDRUNNING")
-        rows = [TRow([TColumnValue(stringVal=TStringValue(value="1")),TColumnValue(stringVal=TStringValue(value="ace"))])
-                 ,TRow([TColumnValue(stringVal=TStringValue(value="12")),TColumnValue(stringVal=TStringValue(value="Vert"))])
-                 ,TRow([TColumnValue(stringVal=TStringValue(value="12")),TColumnValue(stringVal=TStringValue(value="Vert"))])
-                 ,TRow([TColumnValue(stringVal=TStringValue(value="12")),TColumnValue(stringVal=TStringValue(value="Vert"))])
-                 ]
-        columns = [TColumn(stringVal=TStringColumn(values=[b"ido"],nulls=b""))
-                    ,TColumn(stringVal=TStringColumn(values=[b"namesx"],nulls=b""))]
-        results = TRowSet(
-            startRowOffset=0,
-            rows=rows,
-            # [[b'1', b"ace"], [b'12', b"Very"]],
-            columns=columns,
-            # [b"id", b"names"],
-            # binaryColumns=b'',
-            columnCount=10
-        )
-        if self.queryCnt > 2:
+            # rows = [TRow([TColumnValue(stringVal=TStringValue(value="1")),TColumnValue(stringVal=TStringValue(value="ace"))])
+            #             ,TRow([TColumnValue(stringVal=TStringValue(value="12")),TColumnValue(stringVal=TStringValue(value="Vert"))])
+            #             ,TRow([TColumnValue(stringVal=TStringValue(value="12")),TColumnValue(stringVal=TStringValue(value="Vert"))])
+            #             ,TRow([TColumnValue(stringVal=TStringValue(value="12")),TColumnValue(stringVal=TStringValue(value="Vert"))])
+            #             ]
+            if self.queryCnt > 2:
+                columns = []
+            else:
+                columns = [TColumn(stringVal=TStringColumn(values=[b"ido"],nulls=b""))
+                        ,TColumn(stringVal=TStringColumn(values=[b"namesx"],nulls=b""))]
             results = TRowSet(
                 startRowOffset=0,
                 rows=rows,
-                # [[b'1', b"ace"], [b'12', b"Very"]],
-                columns=[],
-                # [b"id", b"names"],
-                # binaryColumns=b'',
-                columnCount=2
-                )
+                columns=columns,
+                columnCount=1
+            )
             result = TFetchResultsResp(status=status,hasMoreRows=False, results=results)
-        else:
-            result = TFetchResultsResp(status=status,hasMoreRows=False, results=results)
-        self.queryCnt += 1
+            self.queryCnt += 1
+            return result
+
+        status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS,
+                         infoMessages="infoMessages44",
+                         sqlState="ENDRUNNING")
+        columns = self.sparkHndler.getNextResultRow()
+        results = TRowSet(
+            startRowOffset=0,
+            rows=rows,
+            columns=columns,
+            columnCount=1
+        )
+        result = TFetchResultsResp(status=status,hasMoreRows=False, results=results)
         return result
         
     def GetDelegationToken(self, req):
