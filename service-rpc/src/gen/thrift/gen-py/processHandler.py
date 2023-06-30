@@ -18,7 +18,7 @@ class dataProcessSparkHandler():
         self.resultRows = None
         self.fqueryCnt = 0
 
-    def hasSparkContext():
+    def hasSparkContext(self):
         if self.hasSparkContext:
             return True
         return False
