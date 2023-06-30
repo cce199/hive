@@ -234,6 +234,8 @@ class ThriftProcessHandler:
                             sqlState="ENDRUNNING")
         resultSchema = self.sparkHndler.getResultSchema()
         result = TGetResultSetMetadataResp(status=status, schema=resultSchema)
+        print("================ GetResultSetMetadata_result ===============")
+        print(result)
         # GetResultSetMetadata_result
         return result
 
@@ -279,6 +281,7 @@ class ThriftProcessHandler:
             columnCount=1
         )
         result = TFetchResultsResp(status=status,hasMoreRows=False, results=results)
+        print(result)
         return result
         
     def GetDelegationToken(self, req):
