@@ -88,7 +88,7 @@ class dataProcessSparkHandler():
                 currTtype = TTypeId.BINARY_TYPE
                 self.colTColumnType.append("byte")
             elif colType == pyspark.sql.types.DateType:
-                currTtype = TTypeId.DATE_TYPE
+                currTtype = TTypeId.STRING_TYPE
                 self.colTColumnType.append("string")
             elif colType in [ pyspark.sql.types.ShortType ]:
                 currTtype = TTypeId.SMALLINT_TYPE
