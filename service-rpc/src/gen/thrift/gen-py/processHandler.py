@@ -160,5 +160,7 @@ class dataProcessSparkHandler():
             #             ,TColumn(stringVal=TStringColumn(values=[b"namesx"],nulls=b""))]
             # except IndexError as e:
         
+        print("============= returnRow ===============")
+        print(returnRow)
         return returnRow
         
