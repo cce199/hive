@@ -80,7 +80,7 @@ class ThriftProcessHandler:
     def ExecuteStatement(self, req):
         print("ExecuteStatement")
         print(req.statement)
-        if False:
+        if True:
             if not self.sparkHndler: # or 추후에 query에 driver option을 바꾸는 명령/hint가 들어오면
                 self.sparkHndler = dataProcessSparkHandler()
             # sparkHndler.getSpark(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
