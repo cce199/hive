@@ -146,14 +146,14 @@ class dataProcessSparkHandler():
                    rtnCols[ord].append(colVal)
         for (colType, ord) in zip(self.colTColumnType, range(len(self.colTColumnType))):
             currCol = TColumn(
-                boolVal = TBoolColumn(values=rtnCols[ord]) if colType == 'bool' else None,
-                byteVal = TByteColumn(values=rtnCols[ord]) if colType == 'binary' else None,
-                i16Val = TI16Column(values=rtnCols[ord]) if colType == 'i16' else None,
-                i32Val = TI32Column(values=rtnCols[ord]) if colType == 'i32' else None,
-                i64Val = TI64Column(values=rtnCols[ord]) if colType == 'i64' else None,
-                doubleVal = TDoubleColumn(values=rtnCols[ord]) if colType == 'double' else None,
+                boolVal = TBoolColumn(values=rtnCols[ord], nulls=b"") if colType == 'bool' else None,
+                byteVal = TByteColumn(values=rtnCols[ord], nulls=b"") if colType == 'binary' else None,
+                i16Val = TI16Column(values=rtnCols[ord], nulls=b"") if colType == 'i16' else None,
+                i32Val = TI32Column(values=rtnCols[ord], nulls=b"") if colType == 'i32' else None,
+                i64Val = TI64Column(values=rtnCols[ord], nulls=b"") if colType == 'i64' else None,
+                doubleVal = TDoubleColumn(values=rtnCols[ord], nulls=b"") if colType == 'double' else None,
                 stringVal = TStringColumn(values=rtnCols[ord], nulls=b"") if colType == 'string' else None,
-                binaryVal = TBinaryColumn(values=rtnCols[ord]) if colType == 'byte' else None,
+                binaryVal = TBinaryColumn(values=rtnCols[ord], nulls=b"") if colType == 'byte' else None,
             )
             returnRow.append(currCol)
             # [TColumn(stringVal=TStringColumn(values=[b"ido"],nulls=b""))

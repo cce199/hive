@@ -80,7 +80,7 @@ class ThriftProcessHandler:
     def ExecuteStatement(self, req):
         print("ExecuteStatement")
         print(req.statement)
-        if True:
+        if False:
             if not self.sparkHndler: # or 추후에 query에 driver option을 바꾸는 명령/hint가 들어오면
                 self.sparkHndler = dataProcessSparkHandler()
             # sparkHndler.getSpark(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
@@ -162,7 +162,7 @@ class ThriftProcessHandler:
                          infoMessages="infoMessages1111",
                          sqlState="RUNNING")
         operationState = TOperationState.FINISHED_STATE # RUNNING_STATE
-        headerNames = [b"id", b"names"]
+        headerNames = [b"idop", b"nameop"]
         rows = [[b'1', b"ace"], [b'12', b"Very"]]
         progressUpdateResponse = TProgressUpdateResp(
             headerNames = headerNames,
@@ -220,7 +220,8 @@ class ThriftProcessHandler:
                 # structEntry=,
                 # unionEntry=,
                 # userDefinedTypeEntry=)
-            typeEntry2 = TTypeEntry(primitiveEntry=TPrimitiveTypeEntry(type=TTypeId.STRING_TYPE))
+            # typeEntry2 = TTypeEntry(primitiveEntry=TPrimitiveTypeEntry(type=TTypeId.BIGINT_TYPE))
+            typeEntry2 = TTypeEntry(primitiveEntry=TPrimitiveTypeEntry(type=TTypeId.BIGINT_TYPE))
             col1 = TColumnDesc(columnName="idmeta",typeDesc=TTypeDesc(types=[typeEntry1]), position=1)
             col2 = TColumnDesc(columnName="namesm",typeDesc=TTypeDesc(types=[typeEntry2]), position=2)
             # col1 = TColumnDesc(columnName="idmeta", position=1)
@@ -258,15 +259,22 @@ class ThriftProcessHandler:
             if self.queryCnt > 2:
                 columns = []
             else:
-                columns = [TColumn(stringVal=TStringColumn(values=[b"ido",b"tda"],nulls=b""))
-                        ,TColumn(stringVal=TStringColumn(values=[b"namesx", b"namesss"],nulls=b""))]
+                columns = [TColumn(stringVal=TStringColumn(values=[b"2023-03-01",b"2023-03-02"],nulls=b""))
+                        ,TColumn(i32Val=TI32Column(values=[73352141, 70059975], nulls=b"0"))
+                        ]
+                # columns = [TColumn(stringVal=TStringColumn(values=[b"2023-03-01"],nulls=b""))
+                #         ,TColumn(stringVal=TStringColumn(values=[b"asdfa"],nulls=b""))]
             results = TRowSet(
                 startRowOffset=0,
                 rows=rows,
                 columns=columns,
                 columnCount=1
             )
+            # if columns == []:
+            #     result = TFetchResultsResp(status=status,hasMoreRows=False, results=results)
+            # else:
             result = TFetchResultsResp(status=status,hasMoreRows=False, results=results)
+            print(result)
             self.queryCnt += 1
             return result
 
