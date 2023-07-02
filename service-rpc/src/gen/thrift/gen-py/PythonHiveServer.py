@@ -82,7 +82,7 @@ class ThriftProcessHandler:
     def ExecuteStatement(self, req):
         print("ExecuteStatement")
         print(req.statement)
-        if True:
+        if False:
             if not self.sparkHndler: # or 추후에 query에 driver option을 바꾸는 명령/hint가 들어오면
                 self.sparkHndler = dataProcessSparkHandler()
             # sparkHndler.getSpark(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
@@ -263,7 +263,7 @@ class ThriftProcessHandler:
             if self.queryCnt > 2:
                 columns = []
             else:
-                columns = [TColumn(stringVal=TStringColumn(values=[b"2023-03-01",b"2023-03-02"],nulls=b""))
+                columns = [TColumn(stringVal=TStringColumn(values=[b"2023-03-01"],nulls=b""))
                         # ,TColumn(i32Val=TI32Column(values=[16121901, 16121], nulls=b'[NULL]') ,
                         ,TColumn(i32Val=TI32Column(values=[], nulls=b'[NULL]') ,
                                 #  binaryVal=TBinaryColumn(values=[b'', b''], nulls=b'')
