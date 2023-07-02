@@ -47,6 +47,7 @@ class dataProcessSparkHandler():
     
     def executQuery(self, query):
         self.df = self.spark.sql(query)
+        self.resultRows = None
         # print(result)
         return True
     
