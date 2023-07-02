@@ -236,8 +236,8 @@ class ThriftProcessHandler:
                             sqlState="ENDRUNNING")
         resultSchema = self.sparkHndler.getResultSchema()
         result = TGetResultSetMetadataResp(status=status, schema=resultSchema)
-        print("================ GetResultSetMetadata_result ===============")
-        print(result)
+        # print("================ GetResultSetMetadata_result ===============")
+        # print(result)
         # GetResultSetMetadata_result
         return result
 
