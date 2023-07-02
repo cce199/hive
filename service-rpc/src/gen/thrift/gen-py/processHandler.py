@@ -133,11 +133,11 @@ class dataProcessSparkHandler():
 
     def getNextResultRow(self):            
         try:
-            nextRow = self.resultRows[currentRowOrd]
+            nextRow = self.resultRows[self.currentRowOrd]
         except IndexError as e:
             returnRow = []
             return []
-        currentRowOrd += 1
+        self.currentRowOrd += 1
         # self.colTColumnType
         rtnCols = []
         for colType in self.colTColumnType:
