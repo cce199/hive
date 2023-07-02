@@ -41,8 +41,10 @@ from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
 from processHandler import dataProcessSparkHandler
 import time
+from struct import pack
 # from sparkdriver import K8sSparkDriver
 # from pyspark.sql import SparkSession
+from thrift import Thrift
 
 class ThriftProcessHandler:
 
@@ -80,7 +82,7 @@ class ThriftProcessHandler:
     def ExecuteStatement(self, req):
         print("ExecuteStatement")
         print(req.statement)
-        if True:
+        if False:
             if not self.sparkHndler: # or 추후에 query에 driver option을 바꾸는 명령/hint가 들어오면
                 self.sparkHndler = dataProcessSparkHandler()
             # sparkHndler.getSpark(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
@@ -223,6 +225,7 @@ class ThriftProcessHandler:
                 # userDefinedTypeEntry=)
             # typeEntry2 = TTypeEntry(primitiveEntry=TPrimitiveTypeEntry(type=TTypeId.BIGINT_TYPE))
             typeEntry2 = TTypeEntry(primitiveEntry=TPrimitiveTypeEntry(type=TTypeId.BIGINT_TYPE))
+            typeEntryNull = TTypeEntry(primitiveEntry=TPrimitiveTypeEntry(type=TTypeId.NULL_TYPE))
             col1 = TColumnDesc(columnName="idmeta",typeDesc=TTypeDesc(types=[typeEntry1]), position=1)
             col2 = TColumnDesc(columnName="namesm",typeDesc=TTypeDesc(types=[typeEntry2]), position=2)
             # col1 = TColumnDesc(columnName="idmeta", position=1)
@@ -261,7 +264,10 @@ class ThriftProcessHandler:
                 columns = []
             else:
                 columns = [TColumn(stringVal=TStringColumn(values=[b"2023-03-01",b"2023-03-02"],nulls=b""))
-                        ,TColumn(i32Val=TI32Column(values=[73352141, 70059975], nulls=b"0"))
+                        # ,TColumn(i32Val=TI32Column(values=[16121901, 16121], nulls=b'[NULL]') ,
+                        ,TColumn(i32Val=TI32Column(values=[], nulls=b'[NULL]') ,
+                                #  binaryVal=TBinaryColumn(values=[b'', b''], nulls=b'')
+                                 ) # b'\x00'
                         ]
                 # columns = [TColumn(stringVal=TStringColumn(values=[b"2023-03-01"],nulls=b""))
                 #         ,TColumn(stringVal=TStringColumn(values=[b"asdfa"],nulls=b""))]
@@ -275,7 +281,7 @@ class ThriftProcessHandler:
             #     result = TFetchResultsResp(status=status,hasMoreRows=False, results=results)
             # else:
             result = TFetchResultsResp(status=status,hasMoreRows=False, results=results)
-            print(result)
+            # print(result)
             self.queryCnt += 1
             return result
 
