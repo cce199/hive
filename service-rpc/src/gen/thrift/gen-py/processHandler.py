@@ -51,6 +51,7 @@ class dataProcessSparkHandler():
         # self.resultRows = None
         # print(result)
         self.currentRowOrd = 0
+        self.colTColumnType = []
         self.resultRows = self.df.collect()
         return True
     
