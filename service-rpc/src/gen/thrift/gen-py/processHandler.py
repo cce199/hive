@@ -50,6 +50,7 @@ class dataProcessSparkHandler():
         self.df = self.spark.sql(query)
         # self.resultRows = None
         # print(result)
+        self.currentRowOrd = 0
         self.resultRows = self.df.collect()
         return True
     
@@ -140,27 +141,28 @@ class dataProcessSparkHandler():
         self.currentRowOrd += 1
         # self.colTColumnType
         rtnCols = []
-        for colType in self.colTColumnType:
-            rtnCols.append([])
+        # for colType in self.colTColumnType:
+        #     rtnCols.append([])
         # for row in self.resultRows:
             # for (colType, ord) in zip(self.colTColumnType, range(len(self.colTColumnType))):
-        for (colType, ord, colVal) in zip(self.colTColumnType, range(len(self.colTColumnType)), nextRow ):
-            if colVal == None:
-                pass # values is []
-            elif colType == 'string':
-                rtnCols[ord].append( bytes(str(colVal), 'utf-8'))
-            else:
-                rtnCols[ord].append(colVal)
-        for (colType, ord) in zip(self.colTColumnType, range(len(self.colTColumnType))):
+        # for (colType, ord, colVal) in zip(self.colTColumnType, range(len(self.colTColumnType)), nextRow ):
+        #     if colVal == None:
+        #         pass # values is []
+        #     elif colType == 'string':
+        #         rtnCols.append( bytes(str(colVal), 'utf-8'))
+        #     else:
+        #         rtnCols.append(colVal)
+        for (colType, colVal) in zip(self.colTColumnType, colVal):
+            nullVal = b'[NULL]' if colVal == None else b''
             currCol = TColumn(
-                boolVal = TBoolColumn(values=rtnCols[ord], nulls=b"[NULL]") if colType == 'bool' else None,
-                byteVal = TByteColumn(values=rtnCols[ord], nulls=b"[NULL]") if colType == 'binary' else None,
-                i16Val = TI16Column(values=rtnCols[ord], nulls=b"[NULL]") if colType == 'i16' else None,
-                i32Val = TI32Column(values=rtnCols[ord], nulls=b"[NULL]") if colType == 'i32' else None,
-                i64Val = TI64Column(values=rtnCols[ord], nulls=b"[NULL]") if colType == 'i64' else None,
-                doubleVal = TDoubleColumn(values=rtnCols[ord], nulls=b"[NULL]") if colType == 'double' else None,
-                stringVal = TStringColumn(values=rtnCols[ord], nulls=b"[NULL]") if colType == 'string' else None,
-                binaryVal = TBinaryColumn(values=rtnCols[ord], nulls=b"[NULL]") if colType == 'byte' else None,
+                boolVal = TBoolColumn(values=colVal, nulls=nullVal) if colType == 'bool' else None,
+                byteVal = TByteColumn(values=colVal, nulls=nullVal) if colType == 'binary' else None,
+                i16Val = TI16Column(values=colVal, nulls=nullVal) if colType == 'i16' else None,
+                i32Val = TI32Column(values=colVal, nulls=nullVal) if colType == 'i32' else None,
+                i64Val = TI64Column(values=colVal, nulls=nullVal) if colType == 'i64' else None,
+                doubleVal = TDoubleColumn(values=colVal, nulls=nullVal) if colType == 'double' else None,
+                stringVal = TStringColumn(values=colVal, nulls=nullVal) if colType == 'string' else None,
+                binaryVal = TBinaryColumn(values=colVal, nulls=nullVal) if colType == 'byte' else None,
             )
             returnRow.append(currCol)
             # [TColumn(stringVal=TStringColumn(values=[b"ido"],nulls=b""))
