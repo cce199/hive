@@ -108,7 +108,7 @@ class dataProcessSparkHandler():
             elif colType in [ pyspark.sql.types.TimestampType ]:
                 currTtype = TTypeId.TIMESTAMP_TYPE
                 self.colTColumnType.append("string")
-            elif colType in [ pyspark.sql.types.StringType, pyspark.sql.types.CharType, pyspark.sql.types.VarcharType ]:
+            elif colType in [ pyspark.sql.types.StringType]: #, pyspark.sql.types.CharType, pyspark.sql.types.VarcharType ]:
                 currTtype = TTypeId.STRING_TYPE
                 self.colTColumnType.append("string")
             elif colType in [ pyspark.sql.types.MapType ]:
