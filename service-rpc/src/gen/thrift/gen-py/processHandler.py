@@ -152,7 +152,7 @@ class dataProcessSparkHandler():
         #         rtnCols.append( bytes(str(colVal), 'utf-8'))
         #     else:
         #         rtnCols.append(colVal)
-        for (colType, colVal) in zip(self.colTColumnType, colVal):
+        for (colType, colVal) in zip(self.colTColumnType, nextRow):
             nullVal = b'[NULL]' if colVal == None else b''
             currCol = TColumn(
                 boolVal = TBoolColumn(values=colVal, nulls=nullVal) if colType == 'bool' else None,
