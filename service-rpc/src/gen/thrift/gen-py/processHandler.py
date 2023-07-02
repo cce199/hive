@@ -154,6 +154,13 @@ class dataProcessSparkHandler():
         #         rtnCols.append(colVal)
         for (colType, colVal) in zip(self.colTColumnType, nextRow):
             nullVal = b'[NULL]' if colVal == None else b''
+            if colVal == None:
+                colVal = [] # values is []
+            elif colType == 'string':
+                colVal = [bytes(str(colVal), 'utf-8')]
+            else:
+                colVal = [colVal]
+
             currCol = TColumn(
                 boolVal = TBoolColumn(values=colVal, nulls=nullVal) if colType == 'bool' else None,
                 byteVal = TByteColumn(values=colVal, nulls=nullVal) if colType == 'binary' else None,
