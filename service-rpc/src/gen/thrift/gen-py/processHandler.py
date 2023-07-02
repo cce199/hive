@@ -131,7 +131,7 @@ class dataProcessSparkHandler():
                 
             rtnTColumnDescList.append(TColumnDesc(columnName=col.name,typeDesc=TTypeDesc(types=[currTypeEntry]), position=colPos+1))
         self.schema = TTableSchema(columns=rtnTColumnDescList)
-        print(self.colTColumnType)
+        # print(self.colTColumnType)
         return self.schema
 
     def getNextResultRow(self):            
@@ -178,7 +178,7 @@ class dataProcessSparkHandler():
             #             ,TColumn(stringVal=TStringColumn(values=[b"namesx"],nulls=b""))]
             # except IndexError as e:
         
-        print("============= returnRow ===============")
-        print(returnRow)
+        # print("============= returnRow ===============")
+        # print(returnRow)
         return returnRow
         
