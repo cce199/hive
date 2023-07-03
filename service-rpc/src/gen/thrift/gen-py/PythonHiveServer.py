@@ -89,7 +89,7 @@ class ThriftProcessHandler:
             # time.sleep(20)
             if not self.sparkHndler.hasSparkContext():
                 self.sparkHndler.createExecutor()
-                time.sleep(20)
+                # time.sleep(20)
 
             self.sparkHndler.executQuery(query=req.statement)
             # "select base_date, count(*) cnt from common.dw_eventlogall where base_date >= date '2023-06-20' group by 1 order by 1")
