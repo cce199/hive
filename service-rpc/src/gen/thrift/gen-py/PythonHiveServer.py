@@ -52,16 +52,22 @@ class ThriftProcessHandler:
         self.log = {}
         self.queryCnt = 0
         print("Initialized")
-        self.sparkHndler = None
+        self.sparkHndler = {}
+        self.testCnt = 0
+        self.sessions = []
+        self.sessionOrd = 0
 
     def OpenSession(self, req):
         print('------------------------------------------')
         print('SparkThriftHandler-OpenSession')
-        # print(req) TOpenSessionReq(client_protocol=7, username=None, password=None, configuration={'use:database': 'default'})
+        # print(req) # TOpenSessionReq(client_protocol=7, username=None, password=None, configuration={'use:database': 'default'})
         # return TCLIService.OpenSession_result(status=True)
         status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS)
         serverProtocolVersion = TProtocolVersion.HIVE_CLI_SERVICE_PROTOCOL_V10
-        sessionHandle = TSessionHandle(sessionId=THandleIdentifier(guid=b"guid", secret=b"secret"))
+        guid = str(hex(self.sessionOrd)).encode('utf-8')
+        self.sessions.append(guid)
+        self.sessionOrd += 1
+        sessionHandle = TSessionHandle(sessionId=THandleIdentifier(guid=guid, secret=b"secret"))
         result = TOpenSessionResp(status=status, serverProtocolVersion=serverProtocolVersion, sessionHandle=sessionHandle)
         # result = TCLIService.OpenSession_result()
         # result.success = TCLIService.OpenSession_result()
@@ -81,17 +87,20 @@ class ThriftProcessHandler:
 
     def ExecuteStatement(self, req):
         print("ExecuteStatement")
-        print(req.statement)
-        if True:
-            if not self.sparkHndler: # or 추후에 query에 driver option을 바꾸는 명령/hint가 들어오면
-                self.sparkHndler = dataProcessSparkHandler()
+        print(req)
+        # print(req.statement)
+        self.queryCnt = 0 # Test
+        guid = req.sessionHandle.sessionId.guid
+        if False:
+            if guid not in self.sparkHndler.keys(): # or 추후에 query에 driver option을 바꾸는 명령/hint가 들어오면
+                self.sparkHndler[guid] = dataProcessSparkHandler(guid)
             # sparkHndler.getSpark(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
             # time.sleep(20)
-            if not self.sparkHndler.hasSparkContext():
-                self.sparkHndler.createExecutor()
+            if not self.sparkHndler[guid].hasSparkContext():
+                self.sparkHndler[guid].createExecutor()
                 # time.sleep(20)
 
-            self.sparkHndler.executQuery(query=req.statement)
+            self.sparkHndler[guid].executQuery(query=req.statement)
             # "select base_date, count(*) cnt from common.dw_eventlogall where base_date >= date '2023-06-20' group by 1 order by 1")
         # req -> TExecuteStatementReq(sessionHandle=TSessionHandle(sessionId=THandleIdentifier(guid=b'guid', secret=b'secret')), statement='select 1', confOverlay={}, runAsync=True, queryTimeout=0)
         # req.sessionHandle -> TSessionHandle(sessionId=THandleIdentifier(guid=b'guid', secret=b'secret'))
@@ -195,6 +204,7 @@ class ThriftProcessHandler:
     def GetResultSetMetadata(self, req):
         print("GetResultSetMetadata")
         print(req)
+        guid = req.operationHandle.operationId.guid
         # operationId  = self.operationId # req.sessionHandle.sessionId
         # operationHandle = TOperationHandle(
         #     operationId=self.operationId,
@@ -205,7 +215,7 @@ class ThriftProcessHandler:
         # TGetResultSetMetadataResp
         #     - status
         #     - schema
-        if not self.sparkHndler: # or 추후에 query에 driver option을 바꾸는 명령/hint가 들어오면
+        if guid not in self.sparkHndler.keys(): # or 추후에 query에 driver option을 바꾸는 명령/hint가 들어오면
             # spark not initialized
             # status Error
             status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS,
@@ -237,7 +247,7 @@ class ThriftProcessHandler:
         status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS,
                             infoMessages="infoMessages33",
                             sqlState="ENDRUNNING")
-        resultSchema = self.sparkHndler.getResultSchema()
+        resultSchema = self.sparkHndler[guid].getResultSchema()
         result = TGetResultSetMetadataResp(status=status, schema=resultSchema)
         # print("================ GetResultSetMetadata_result ===============")
         # print(result)
@@ -245,13 +255,15 @@ class ThriftProcessHandler:
         return result
 
     def FetchResults(self, req):
-        print("FetchResults" + str(self.queryCnt))
+        # print("FetchResults" + str(self.queryCnt))
+        # print(req)
         # TFetchResultsResp
         # - status
         # - hasMoreRows
         # - results
         rows = [TRow([])]
-        if not self.sparkHndler: # or 추후에 query에 driver option을 바꾸는 명령/hint가 들어오면
+        guid = req.operationHandle.operationId.guid
+        if guid not in self.sparkHndler.keys(): # or 추후에 query에 driver option을 바꾸는 명령/hint가 들어오면
             status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS,
                          infoMessages="infoMessages44",
                          sqlState="ENDRUNNING")
@@ -265,10 +277,11 @@ class ThriftProcessHandler:
             else:
                 columns = [TColumn(stringVal=TStringColumn(values=[b"2023-03-01"],nulls=b""))
                         # ,TColumn(i32Val=TI32Column(values=[16121901, 16121], nulls=b'[NULL]') ,
-                        ,TColumn(i32Val=TI32Column(values=[], nulls=b'[NULL]') ,
+                        ,TColumn(i32Val=TI32Column(values=[self.testCnt], nulls=b'') ,
                                 #  binaryVal=TBinaryColumn(values=[b'', b''], nulls=b'')
                                  ) # b'\x00'
                         ]
+                self.testCnt += 1
                 # columns = [TColumn(stringVal=TStringColumn(values=[b"2023-03-01"],nulls=b""))
                 #         ,TColumn(stringVal=TStringColumn(values=[b"asdfa"],nulls=b""))]
             results = TRowSet(
@@ -288,7 +301,7 @@ class ThriftProcessHandler:
         status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS,
                          infoMessages="infoMessages44",
                          sqlState="ENDRUNNING")
-        columns = self.sparkHndler.getNextResultRow()
+        columns = self.sparkHndler[guid].getNextResultRow()
         results = TRowSet(
             startRowOffset=0,
             rows=rows,
@@ -329,7 +342,7 @@ if __name__ == '__main__':
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()
 
     # server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
-    server = TServer.TThreadedServer(processor, transport, tfactory, pfactory)
+    server = TServer.TThreadPoolServer(processor, transport, tfactory, pfactory)
 
     # You could do one of these for a multithreaded server
     # server = TServer.TThreadedServer(
