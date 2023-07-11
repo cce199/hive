@@ -41,7 +41,7 @@ class dataProcessSparkHandler():
             "spark.hadoop.fs.s3.buffer.dir": "/opt/mnt/s3",
             "spark.executorEnv.SPARK_USER": "root",
             'spark.kubernetes.namespace': "spark-operator",
-            "spark.kubernetes.node.selector.alpha.eksctl.io/nodegroup-name": "ng-memory-5-spark",
+            "spark.kubernetes.node.selector.alpha.eksctl.io/nodegroup-name": "ng-memory-5g-spark",
         }
         self.sparkContext = self.driver.getSparkContext(config)
         self.spark = SparkSession(self.sparkContext)
