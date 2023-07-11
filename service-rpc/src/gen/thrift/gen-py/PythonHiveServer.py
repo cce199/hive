@@ -45,7 +45,7 @@ from struct import pack
 # from sparkdriver import K8sSparkDriver
 # from pyspark.sql import SparkSession
 from thrift import Thrift
-
+# from sparkUtils import getParseSparkConf
 class ThriftProcessHandler:
 
     def __init__(self):
@@ -87,11 +87,12 @@ class ThriftProcessHandler:
 
     def ExecuteStatement(self, req):
         print("ExecuteStatement")
-        print(req)
-        # print(req.statement)
+        # print(req)
+        print(req.statement)
+        # sparkConf = getParseSparkConf(req.statement)
         self.queryCnt = 0 # Test
         guid = req.sessionHandle.sessionId.guid
-        if False:
+        if True:
             if guid not in self.sparkHndler.keys(): # or 추후에 query에 driver option을 바꾸는 명령/hint가 들어오면
                 self.sparkHndler[guid] = dataProcessSparkHandler(guid)
             # sparkHndler.getSpark(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
@@ -203,7 +204,7 @@ class ThriftProcessHandler:
 
     def GetResultSetMetadata(self, req):
         print("GetResultSetMetadata")
-        print(req)
+        # print(req)
         guid = req.operationHandle.operationId.guid
         # operationId  = self.operationId # req.sessionHandle.sessionId
         # operationHandle = TOperationHandle(
