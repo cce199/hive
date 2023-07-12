@@ -2,6 +2,7 @@ import time
 from TCLIService.ttypes import *
 from pyspark.sql import SparkSession
 import pyspark
+from pyspark_gateway import PysparkGateway
 
 class dataProcessHandler:
     def __init__(self):
@@ -45,6 +46,7 @@ class dataProcessSparkHandler():
         }
         self.sparkContext = self.driver.getSparkContext(config)
         self.spark = SparkSession(self.sparkContext)
+        print(PysparkGateway.host)
     
     def executQuery(self, query):
         self.df = self.spark.sql(query)
