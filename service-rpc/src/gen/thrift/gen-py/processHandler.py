@@ -2,16 +2,18 @@ import time
 from TCLIService.ttypes import *
 from pyspark.sql import SparkSession
 import pyspark
-from pyspark_gateway import PysparkGateway
+# from pyspark_gateway import PysparkGateway
 
 class dataProcessHandler:
     def __init__(self):
         pass
 
 class dataProcessSparkHandler():
-    def __init__(self, guid, cores="4", memory="20Gi", mount_path="/root"):
-        from sparkdriver import K8sSparkDriver
-        self.driver = K8sSparkDriver(guid, cpu=cores, memory=memory, mount_path=mount_path, remote=True)
+    def __init__(self, guid, test=False, cores="4", memory="20Gi", mount_path="/root"):
+        self.test = test
+        if not self.test:
+            from sparkdriver import K8sSparkDriver
+            self.driver = K8sSparkDriver(guid, cpu=cores, memory=memory, mount_path=mount_path, remote=True)
         self.spark = None
         self.df = None
         self.sparkContext = None
@@ -29,6 +31,13 @@ class dataProcessSparkHandler():
     #     return self.driver
     
     def createExecutor(self, instances="2", memory="15g", cores="5"):
+        if self.test:
+            self.spark = SparkSession.builder\
+                .master("local[1]")\
+                .appName("sample() and sampleBy() PySpark")\
+                .getOrCreate()
+            self.sparkContext = ""
+            return
         config = {
             "spark.executor.instances": instances,
             "spark.executor.memory": memory,
@@ -46,10 +55,17 @@ class dataProcessSparkHandler():
         }
         self.sparkContext = self.driver.getSparkContext(config)
         self.spark = SparkSession(self.sparkContext)
-        print(PysparkGateway.host)
+        # print(PysparkGateway.host)
     
     def executQuery(self, query):
-        self.df = self.spark.sql(query)
+        if self.test:
+            self.df = self.spark.createDataFrame([["Alex", 20],\
+                            ["Bob", 24],\
+                            ["Cathy", 22],\
+                            ["Doge", 22]],\
+                            ["name", "age"])
+        else:
+            self.df = self.spark.sql(query)
         # self.resultRows = None
         # print(result)
         self.currentRowOrd = 0
