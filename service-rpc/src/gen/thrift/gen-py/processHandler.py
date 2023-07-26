@@ -1,6 +1,8 @@
 import time
 from TCLIService.ttypes import *
 from pyspark.sql import SparkSession
+from pyspark.conf import SparkConf
+from pyspark.context import SparkContext
 import pyspark
 # from pyspark_gateway import PysparkGateway
 
@@ -19,9 +21,9 @@ class dataProcessSparkHandler():
         self.sparkContext = None
         self.schema = None
         self.resultRows = None
-        self.fqueryCnt = 0
         self.colTColumnType = []
         self.currentRowOrd = 0
+        self.testCnt = 0
 
     def hasSparkContext(self):
         if self.sparkContext:
@@ -31,39 +33,43 @@ class dataProcessSparkHandler():
     #     return self.driver
     
     def createExecutor(self, instances="2", memory="15g", cores="5"):
+        self.sparkContext = None
         if self.test:
-            self.spark = SparkSession.builder\
-                .master("local[1]")\
-                .appName("sample() and sampleBy() PySpark")\
-                .getOrCreate()
-            self.sparkContext = ""
-            return
-        config = {
-            "spark.executor.instances": instances,
-            "spark.executor.memory": memory,
-            "spark.executor.cores": cores,
-            # "spark.driver.memory": "10g",
-            "spark.driver.bindAddress": "0.0.0.0",
-            "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
-            "spark.hadoop.fs.s3.impl": "com.amazon.ws.emr.hadoop.fs.EmrFileSystem",
-            "spark.hadoop.fs.s3n.impl": "com.amazon.ws.emr.hadoop.fs.EmrFileSystem",
-            "spark.hadoop.fs.s3bfs.impl": "org.apache.hadoop.fs.s3.S3FileSystem",
-            "spark.hadoop.fs.s3.buffer.dir": "/opt/mnt/s3",
-            "spark.executorEnv.SPARK_USER": "root",
-            'spark.kubernetes.namespace': "spark-operator",
-            "spark.kubernetes.node.selector.alpha.eksctl.io/nodegroup-name": "ng-memory-5g-spark",
-        }
-        self.sparkContext = self.driver.getSparkContext(config)
+            conf = SparkConf()
+            conf.setMaster("local").setAppName("ThriftSparkTest") #.set("spark.driver.allowMultipleContexts", "true")
+            self.sparkContext  = SparkContext(conf=conf)
+            # self.spark = SparkSession.builder\
+            #     .master("local[1]")\
+            #     .appName("sample() and sampleBy() PySpark")\
+            #     .getOrCreate()
+        else:
+            config = {
+                "spark.executor.instances": instances,
+                "spark.executor.memory": memory,
+                "spark.executor.cores": cores,
+                # "spark.driver.memory": "10g",
+                "spark.driver.bindAddress": "0.0.0.0",
+                "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
+                "spark.hadoop.fs.s3.impl": "com.amazon.ws.emr.hadoop.fs.EmrFileSystem",
+                "spark.hadoop.fs.s3n.impl": "com.amazon.ws.emr.hadoop.fs.EmrFileSystem",
+                "spark.hadoop.fs.s3bfs.impl": "org.apache.hadoop.fs.s3.S3FileSystem",
+                "spark.hadoop.fs.s3.buffer.dir": "/opt/mnt/s3",
+                "spark.executorEnv.SPARK_USER": "root",
+                'spark.kubernetes.namespace': "spark-operator",
+                "spark.kubernetes.node.selector.alpha.eksctl.io/nodegroup-name": "ng-memory-5g-spark",
+            }
+            self.sparkContext = self.driver.getSparkContext(config)
         self.spark = SparkSession(self.sparkContext)
         # print(PysparkGateway.host)
     
     def executQuery(self, query):
         if self.test:
-            self.df = self.spark.createDataFrame([["Alex", 20],\
-                            ["Bob", 24],\
-                            ["Cathy", 22],\
-                            ["Doge", 22]],\
+            self.df = self.spark.createDataFrame([["Alex", self.testCnt + 1],\
+                            ["Bob", self.testCnt + 2],\
+                            ["Cathy", self.testCnt + 3],\
+                            ["Doge", self.testCnt + 4]],\
                             ["name", "age"])
+            self.testCnt += 5
         else:
             self.df = self.spark.sql(query)
         # self.resultRows = None
