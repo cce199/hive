@@ -57,6 +57,7 @@ class dataProcessSparkHandler():
                 "spark.executorEnv.SPARK_USER": "root",
                 'spark.kubernetes.namespace': "spark-operator",
                 "spark.kubernetes.node.selector.alpha.eksctl.io/nodegroup-name": "ng-memory-5g-spark",
+                "spark.kubernetes.executor.podTemplateFile":"s3a://zigbang-data/conf/executor.yaml",
             }
             self.sparkContext = self.driver.getSparkContext(config)
         self.spark = SparkSession(self.sparkContext)
