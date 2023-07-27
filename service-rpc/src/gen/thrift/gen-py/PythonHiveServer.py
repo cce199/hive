@@ -20,7 +20,7 @@
 #
 
 import glob
-import sys
+import sys, os
 # ThriftHive python
 # sys.path.append('gen-py')
 
@@ -54,19 +54,20 @@ class ThriftProcessHandler:
         print("Initialized")
         self.sparkHndler = {}
         self.testCnt = 0
-        self.sessions = []
-        self.sessionOrd = 0
+        # self.sessions = []
+        # self.sessionOrd = 0
 
     def OpenSession(self, req):
         print('------------------------------------------')
         print('SparkThriftHandler-OpenSession')
+        # print("SparkThriftHandler-OpenSession - sessionOrd : " + str(self.sessionOrd))
         # print(req) # TOpenSessionReq(client_protocol=7, username=None, password=None, configuration={'use:database': 'default'})
         # return TCLIService.OpenSession_result(status=True)
         status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS)
         serverProtocolVersion = TProtocolVersion.HIVE_CLI_SERVICE_PROTOCOL_V10
-        guid = str(hex(self.sessionOrd)).encode('utf-8')
-        self.sessions.append(guid)
-        self.sessionOrd += 1
+        guid = str(hex(os.getpid()) ).encode('utf-8')
+        # self.sessions.append(guid)
+        # self.sessionOrd += 1
         sessionHandle = TSessionHandle(sessionId=THandleIdentifier(guid=guid, secret=b"secret"))
         result = TOpenSessionResp(status=status, serverProtocolVersion=serverProtocolVersion, sessionHandle=sessionHandle)
         # result = TCLIService.OpenSession_result()
@@ -95,7 +96,7 @@ class ThriftProcessHandler:
         print(guid)
         if True:
             if guid not in self.sparkHndler.keys(): # or 추후에 query에 driver option을 바꾸는 명령/hint가 들어오면
-                self.sparkHndler[guid] = dataProcessSparkHandler(guid.decode(), test=False)
+                self.sparkHndler[guid] = dataProcessSparkHandler(guid.decode(), test=True)
             # sparkHndler.getSpark(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
             # time.sleep(20)
             if not self.sparkHndler[guid].hasSparkContext():
