@@ -81,7 +81,7 @@ class ThriftProcessHandler:
         print(req.sessionHandle)
         guid = req.sessionHandle.sessionId.guid
         
-        if guid not in self.sparkHndler.keys():
+        if guid in self.sparkHndler.keys():
             print('SparkThriftHandler-CloseSession-call spark close')
             self.sparkHndler[guid].closeConnection()
         status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS)
