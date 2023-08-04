@@ -160,6 +160,7 @@ class dataProcessSparkHandler():
         return self.schema
 
     def closeConnection(self):
+        print("stop spark/driver")
         self.spark.stop()
         self.driver.stop()        
 
