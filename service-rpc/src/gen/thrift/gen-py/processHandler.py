@@ -159,6 +159,10 @@ class dataProcessSparkHandler():
         # print(self.colTColumnType)
         return self.schema
 
+    def closeConnection(self):
+        self.spark.stop()
+        self.driver.stop()        
+
     def getNextResultRow(self):            
         returnRow = []
         try:

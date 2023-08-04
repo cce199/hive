@@ -1092,6 +1092,7 @@ class Processor(Iface, TProcessor):
             x.write(oprot)
             oprot.writeMessageEnd()
             oprot.trans.flush()
+            print("process process2-2-flushed")
             return
         else:
             print("process process2-3")
@@ -1138,10 +1139,12 @@ class Processor(Iface, TProcessor):
         args.read(iprot)
         iprot.readMessageEnd()
         result = CloseSession_result()
-        print("process_CloseSession-result:" + str(result))
+
         try:
             result.success = self._handler.CloseSession(args.req)
             msg_type = TMessageType.REPLY
+            print("process_CloseSession-result:" + str(result))
+            # print(msg_type)
         except TTransport.TTransportException:
             raise
         except TApplicationException as ex:
@@ -1800,7 +1803,7 @@ class OpenSession_result(object):
         print("OpenSession_result-write:begin")
         # print(oprot)
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            print("OpenSession_result:if1")
+            # print("OpenSession_result:if1")
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
         oprot.writeStructBegin('OpenSession_result')

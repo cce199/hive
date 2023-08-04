@@ -78,6 +78,11 @@ class ThriftProcessHandler:
     def CloseSession(self, req):
         print('------------------------------------------')
         print('SparkThriftHandler-CloseSession')
+        print(req.sessionHandle)
+        guid = req.sessionHandle.sessionId.guid
+        
+        if guid not in self.sparkHndler.keys():
+            self.sparkHndler[guid].closeConnection()
         status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS)
         result = TCloseSessionResp(status=status)
         return result
