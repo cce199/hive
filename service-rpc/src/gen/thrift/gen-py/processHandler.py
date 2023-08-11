@@ -1,4 +1,4 @@
-import time
+import time, re, math
 from TCLIService.ttypes import *
 from pyspark.sql import SparkSession
 from pyspark.conf import SparkConf
@@ -9,13 +9,76 @@ import pyspark
 class dataProcessHandler:
     def __init__(self):
         pass
-
+    
 class dataProcessSparkHandler():
-    def __init__(self, guid, test=False, cores="4", memory="20Gi", mount_path="/root"):
+    def sparkConfChk(self):
+        sparkExecutorConfig = {}
+        self.spark_driver_cpu = self.sparkConf.get("spark_driver_cores","5")
+        spark_driver_memory = self.sparkConf.get("spark_driver_memory","40G")
+        self.spark_driver_pod_memory = spark_driver_memory
+        memoryOverheadFactor = self.sparkConf.get("memoryOverheadFactor","0.1")
+        spark_executor_cores = self.sparkConf.get("spark_executor_cores","5")
+        spark_executor_memory = self.sparkConf.get("spark_executor_memory","40G")
+        
+        sparkDriverMemoryNum = float(
+            re.search("[0-9.]+", spark_driver_memory).group(0))
+        sparkDriverMemoryUnit = re.search(
+            "[gGmMkK]", spark_driver_memory).group(0)
+        if sparkDriverMemoryUnit in ['k', 'K']:
+            sparkDriverMemoryNum /= 1024
+        elif sparkDriverMemoryUnit in ['m', 'M']:
+            sparkDriverMemoryNum *= 1
+        elif sparkDriverMemoryUnit in ['g', 'G']:
+            sparkDriverMemoryNum *= 1024
+        self.spark_driver_memory = str(math.floor(
+            sparkDriverMemoryNum/(1+float(memoryOverheadFactor))))+"m"
+
+        sparkExecutorMemoryNum = float(
+            re.search("[0-9.]+", spark_executor_memory).group(0))
+        sparkExecutorMemoryUnit = re.search(
+            "[gGmMkK]", spark_executor_memory).group(0)
+        if sparkExecutorMemoryUnit in ['k', 'K']:
+            sparkExecutorMemoryNum /= 1024
+        elif sparkExecutorMemoryUnit in ['m', 'M']:
+            sparkExecutorMemoryNum *= 1
+        elif sparkExecutorMemoryUnit in ['g', 'G']:
+            sparkExecutorMemoryNum *= 1024
+        self.spark_executor_memory = str(math.floor(
+            sparkExecutorMemoryNum/(1+float(memoryOverheadFactor))))+"m"
+        self.memoryOverheadFactor = memoryOverheadFactor
+        
+        sparkExecutorConfig["spark.driver.cores"] = self.spark_driver_cpu
+        sparkExecutorConfig["spark.driver.memory"] = self.spark_driver_memory
+        sparkExecutorConfig["spark.kubernetes.memoryOverheadFactor"] = self.memoryOverheadFactor
+        
+        if self.sparkConf.get("spark_dynamicAllocation_enabled",False):
+            sparkExecutorConfig["spark.dynamicAllocation.shuffleTracking.enabled"] = "true"
+            sparkExecutorConfig["spark.dynamicAllocation.schedulerBacklogTimeout"] = "30s"
+            sparkExecutorConfig["spark.dynamicAllocation.executorIdleTimeout"] = "60s"
+            sparkExecutorConfig["spark.dynamicAllocation.cachedExecutorIdleTimeout"] = "60s"
+            sparkExecutorConfig["spark.dynamicAllocation.enabled"] = "true"
+            sparkExecutorConfig["spark.dynamicAllocation.preallocateExecutors"] = "false"
+        else:
+            sparkExecutorConfig["spark.executor.cores"] = self.sparkConf.get("spark_executor_cores","5")
+            sparkExecutorConfig["spark.executor.memory"] = self.spark_executor_memory
+            sparkExecutorConfig["spark.executor.instances"] = self.sparkConf.get("spark_executor_instances","5")
+
+        if self.sparkConf.get("is_executor_pvc", False):
+            sparkExecutorConfig["spark.kubernetes.executor.volumes.persistentVolumeClaim.spark-local-dir-1.options.claimName"] = "OnDemand"
+            sparkExecutorConfig["spark.kubernetes.executor.volumes.persistentVolumeClaim.spark-local-dir-1.options.storageClass"] = "gp3c-delete"
+            sparkExecutorConfig["spark.kubernetes.executor.volumes.persistentVolumeClaim.spark-local-dir-1.options.sizeLimit"] = self.sparkConf.get("executor_local_pvc_size", "100Gi")
+            sparkExecutorConfig["spark.kubernetes.executor.volumes.persistentVolumeClaim.spark-local-dir-1.mount.path"] = "/data3"
+            sparkExecutorConfig["spark.kubernetes.executor.volumes.persistentVolumeClaim.spark-local-dir-1.mount.readOnly"] = "false"
+        
+        self.sparkExecutorConfig = sparkExecutorConfig
+
+    def __init__(self, guid, test=False, sparkConf = {}):
         self.test = test
+        self.sparkConf = sparkConf
+        self.sparkConfChk()
         if not self.test:
             from sparkdriver import K8sSparkDriver
-            self.driver = K8sSparkDriver(guid, cpu=cores, memory=memory, mount_path=mount_path, remote=True)
+            self.driver = K8sSparkDriver(guid, cpu=self.spark_driver_cpu, memory=self.spark_driver_pod_memory, remote=True)
         self.spark = None
         self.df = None
         self.sparkContext = None
@@ -32,8 +95,23 @@ class dataProcessSparkHandler():
     # def getDriver(self):
     #     return self.driver
     
-    def createExecutor(self, instances="2", memory="15g", cores="5"):
+    def createExecutor(self):
         self.sparkContext = None
+        config = {
+            "spark.driver.bindAddress": "0.0.0.0",
+            "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
+            "spark.hadoop.fs.s3.impl": "com.amazon.ws.emr.hadoop.fs.EmrFileSystem",
+            "spark.hadoop.fs.s3n.impl": "com.amazon.ws.emr.hadoop.fs.EmrFileSystem",
+            "spark.hadoop.fs.s3bfs.impl": "org.apache.hadoop.fs.s3.S3FileSystem",
+            "spark.hadoop.fs.s3.buffer.dir": "/opt/mnt/s3",
+            "spark.executorEnv.SPARK_USER": "root",
+            'spark.kubernetes.namespace': "spark-operator",
+            "spark.kubernetes.node.selector.alpha.eksctl.io/nodegroup-name": "ng-memory-5g-spark",
+            "spark.kubernetes.executor.podTemplateFile":"s3a://zigbang-data/conf/executor.yaml",
+        }
+        config.update(self.sparkExecutorConfig)
+        print("execute-config---------------------------")
+        print(config)
         if self.test:
             conf = SparkConf()
             conf.setMaster("local").setAppName("ThriftSparkTest") #.set("spark.driver.allowMultipleContexts", "true")
@@ -43,22 +121,6 @@ class dataProcessSparkHandler():
             #     .appName("sample() and sampleBy() PySpark")\
             #     .getOrCreate()
         else:
-            config = {
-                "spark.executor.instances": instances,
-                "spark.executor.memory": memory,
-                "spark.executor.cores": cores,
-                # "spark.driver.memory": "10g",
-                "spark.driver.bindAddress": "0.0.0.0",
-                "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
-                "spark.hadoop.fs.s3.impl": "com.amazon.ws.emr.hadoop.fs.EmrFileSystem",
-                "spark.hadoop.fs.s3n.impl": "com.amazon.ws.emr.hadoop.fs.EmrFileSystem",
-                "spark.hadoop.fs.s3bfs.impl": "org.apache.hadoop.fs.s3.S3FileSystem",
-                "spark.hadoop.fs.s3.buffer.dir": "/opt/mnt/s3",
-                "spark.executorEnv.SPARK_USER": "root",
-                'spark.kubernetes.namespace': "spark-operator",
-                "spark.kubernetes.node.selector.alpha.eksctl.io/nodegroup-name": "ng-memory-5g-spark",
-                "spark.kubernetes.executor.podTemplateFile":"s3a://zigbang-data/conf/executor.yaml",
-            }
             self.sparkContext = self.driver.getSparkContext(config)
         self.spark = SparkSession(self.sparkContext)
         # print(PysparkGateway.host)

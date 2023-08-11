@@ -20,7 +20,7 @@
 #
 
 import glob
-import sys, os
+import sys, os, re, json
 # ThriftHive python
 # sys.path.append('gen-py')
 
@@ -46,6 +46,30 @@ from struct import pack
 # from pyspark.sql import SparkSession
 from thrift import Thrift
 # from sparkUtils import getParseSparkConf
+
+def commentParsing(statement):
+    """_summary_
+
+    Args:
+        statement (_type_): _description_
+        /* ... */
+        spark_driver_cores
+        spark_driver_memory
+        memoryOverheadFactor
+        spark_executor_cores
+        spark_executor_instances
+        spark_executor_memory
+        spark_dynamicAllocation_enabled
+        is_executor_pvc
+        executor_local_pvc_size
+    """
+    try:
+        m = re.search(r'( \n)*/\*[\w \'\=\"\n:{}_.,]+\*/',statement)
+        sparkConfJson = json.loads(m.group(0)[2:][:-2])
+        return sparkConfJson
+    except Exception as e:
+        return {}
+
 class ThriftProcessHandler:
 
     def __init__(self):
@@ -54,6 +78,7 @@ class ThriftProcessHandler:
         print("Initialized")
         self.sparkHndler = {}
         self.testCnt = 0
+        self.sparkConfJson = None
         # self.sessions = []
         # self.sessionOrd = 0
 
@@ -91,18 +116,22 @@ class ThriftProcessHandler:
     def GetInfo(self, req):
         print('------------------------------------------')
         print('SparkThriftHandler-GetInfo')
-
+        
     def ExecuteStatement(self, req):
         print("ExecuteStatement")
         # print(req)
         print(req.statement)
+        if not self.sparkConfJson:
+            self.sparkConfJson = commentParsing(req.statement)
+            print(self.sparkConfJson)
+        
         # sparkConf = getParseSparkConf(req.statement)
         self.queryCnt = 0 # Test
         guid = req.sessionHandle.sessionId.guid
         print(guid)
         if True:
             if guid not in self.sparkHndler.keys(): # or 추후에 query에 driver option을 바꾸는 명령/hint가 들어오면
-                self.sparkHndler[guid] = dataProcessSparkHandler(guid.decode(), test=False)
+                self.sparkHndler[guid] = dataProcessSparkHandler(guid.decode(), test=True, sparkConf = self.sparkConfJson)
             # sparkHndler.getSpark(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
             # time.sleep(20)
             if not self.sparkHndler[guid].hasSparkContext():
