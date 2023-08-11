@@ -51,7 +51,7 @@ class dataProcessSparkHandler():
         sparkExecutorConfig["spark.driver.memory"] = self.spark_driver_memory
         sparkExecutorConfig["spark.kubernetes.memoryOverheadFactor"] = self.memoryOverheadFactor
         
-        if self.sparkConf.get("spark_dynamicAllocation_enabled",False):
+        if self.sparkConf.get("spark_dynamicAllocation_enabled","False") == "True":
             sparkExecutorConfig["spark.dynamicAllocation.shuffleTracking.enabled"] = "true"
             sparkExecutorConfig["spark.dynamicAllocation.schedulerBacklogTimeout"] = "30s"
             sparkExecutorConfig["spark.dynamicAllocation.executorIdleTimeout"] = "60s"
