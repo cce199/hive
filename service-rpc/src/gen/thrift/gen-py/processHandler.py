@@ -13,7 +13,7 @@ class dataProcessHandler:
 class dataProcessSparkHandler():
     def sparkConfChk(self):
         sparkExecutorConfig = {}
-        self.spark_driver_cpu = self.sparkConf.get("spark_driver_cores","5")
+        self.spark_driver_cores = self.sparkConf.get("spark_driver_cores","5")
         spark_driver_memory = self.sparkConf.get("spark_driver_memory","40G")
         self.spark_driver_pod_memory = spark_driver_memory
         memoryOverheadFactor = self.sparkConf.get("memoryOverheadFactor","0.1")
@@ -47,7 +47,7 @@ class dataProcessSparkHandler():
             sparkExecutorMemoryNum/(1+float(memoryOverheadFactor))))+"m"
         self.memoryOverheadFactor = memoryOverheadFactor
         
-        sparkExecutorConfig["spark.driver.cores"] = self.spark_driver_cpu
+        sparkExecutorConfig["spark.driver.cores"] = self.spark_driver_cores
         sparkExecutorConfig["spark.driver.memory"] = self.spark_driver_memory
         sparkExecutorConfig["spark.kubernetes.memoryOverheadFactor"] = self.memoryOverheadFactor
         
@@ -78,7 +78,7 @@ class dataProcessSparkHandler():
         self.sparkConfChk()
         if not self.test:
             from sparkdriver import K8sSparkDriver
-            self.driver = K8sSparkDriver(guid, cpu=self.spark_driver_cpu, memory=self.spark_driver_pod_memory, remote=True)
+            self.driver = K8sSparkDriver(guid, cpu=self.spark_driver_cores, memory=self.spark_driver_pod_memory, remote=True)
         self.spark = None
         self.df = None
         self.sparkContext = None
