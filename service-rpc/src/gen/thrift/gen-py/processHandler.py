@@ -13,11 +13,11 @@ class dataProcessHandler:
 class dataProcessSparkHandler():
     def sparkConfChk(self):
         sparkExecutorConfig = {}
-        self.spark_driver_cores = self.sparkConf.get("spark_driver_cores","5")
+        self.spark_driver_cores = str(self.sparkConf.get("spark_driver_cores","5"))
         spark_driver_memory = self.sparkConf.get("spark_driver_memory","40G")
         self.spark_driver_pod_memory = spark_driver_memory
-        memoryOverheadFactor = self.sparkConf.get("memoryOverheadFactor","0.1")
-        spark_executor_cores = self.sparkConf.get("spark_executor_cores","5")
+        memoryOverheadFactor = str(self.sparkConf.get("memoryOverheadFactor","0.1"))
+        spark_executor_cores = str(self.sparkConf.get("spark_executor_cores","5"))
         spark_executor_memory = self.sparkConf.get("spark_executor_memory","40G")
         
         sparkDriverMemoryNum = float(
@@ -108,6 +108,7 @@ class dataProcessSparkHandler():
             'spark.kubernetes.namespace': "spark-operator",
             "spark.kubernetes.node.selector.alpha.eksctl.io/nodegroup-name": "ng-memory-5g-spark",
             "spark.kubernetes.executor.podTemplateFile":"s3a://zigbang-data/conf/executor.yaml",
+            "spark.scheduler.minRegisteredResourcesRatio": "1.0",
         }
         config.update(self.sparkExecutorConfig)
         print("execute-config---------------------------")
