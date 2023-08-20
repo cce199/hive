@@ -374,7 +374,7 @@ class ThriftProcessHandler:
 if __name__ == '__main__':
     handler = ThriftProcessHandler()
     processor = TCLIService.Processor(handler)
-    transport = TSocket.TServerSocket(host='127.0.0.1', port=9091)
+    transport = TSocket.TServerSocket(host='0.0.0.0', port=9091)
     # tfactory = TTransport.TBufferedTransportFactory()
     tfactory = TTransport.TSaslClientTransportFactory()
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()

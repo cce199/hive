@@ -109,6 +109,7 @@ class dataProcessSparkHandler():
             "spark.kubernetes.node.selector.alpha.eksctl.io/nodegroup-name": "ng-memory-5g-spark",
             "spark.kubernetes.executor.podTemplateFile":"s3a://zigbang-data/conf/executor.yaml",
             "spark.scheduler.minRegisteredResourcesRatio": "1.0",
+            "spark.kubernetes.container.image.pullPolicy": "IfNotPresent",
         }
         config.update(self.sparkExecutorConfig)
         print("execute-config---------------------------")
