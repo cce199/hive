@@ -3346,7 +3346,7 @@ class TOpenSessionResp(object):
         if self.serverProtocolVersion is not None:
             # print("TOpenSessionResp-write-self.serverProtocolVersion: " + str(self.serverProtocolVersion))
             oprot.writeFieldBegin('serverProtocolVersion', TType.I32, 2)
-            oprot.writeI16(self.serverProtocolVersion)
+            oprot.writeI32(self.serverProtocolVersion)
             oprot.writeFieldEnd()
         if self.sessionHandle is not None:
             oprot.writeFieldBegin('sessionHandle', TType.STRUCT, 3)
