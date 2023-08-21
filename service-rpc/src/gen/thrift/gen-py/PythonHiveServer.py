@@ -124,7 +124,12 @@ class ThriftProcessHandler:
         print(req.statement)
         # USE `default`
         chkUseDb = re.match(r"USE \`\w+\`",req.statement)
+        status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS,
+                    infoMessages="infoMessages1111",
+                    sqlState="RUNNING")
         if not self.sparkConfJson and not chkUseDb:
+            return TExecuteStatementResp(status=status)
+        elif not self.sparkConfJson:
             self.sparkConfJson = commentParsing(req.statement)
             print(self.sparkConfJson)
         
@@ -146,9 +151,7 @@ class ThriftProcessHandler:
         # req -> TExecuteStatementReq(sessionHandle=TSessionHandle(sessionId=THandleIdentifier(guid=b'guid', secret=b'secret')), statement='select 1', confOverlay={}, runAsync=True, queryTimeout=0)
         # req.sessionHandle -> TSessionHandle(sessionId=THandleIdentifier(guid=b'guid', secret=b'secret'))
         # print(req.sessionHandle)
-        status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS,
-                         infoMessages="infoMessages1111",
-                         sqlState="RUNNING")
+
         # operationId = THandleIdentifier
         self.operationId  = req.sessionHandle.sessionId
         operationHandle = TOperationHandle(
