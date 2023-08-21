@@ -228,7 +228,7 @@ class dataProcessSparkHandler():
         self.spark.stop()
         self.driver.stop()        
 
-    def getNextResultRow(self):            
+    def getNextResultRow(self):
         returnRow = []
         try:
             nextRow = self.resultRows[self.currentRowOrd]

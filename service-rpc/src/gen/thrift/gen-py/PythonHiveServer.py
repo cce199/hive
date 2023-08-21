@@ -89,7 +89,7 @@ class ThriftProcessHandler:
         # print(req) # TOpenSessionReq(client_protocol=7, username=None, password=None, configuration={'use:database': 'default'})
         # return TCLIService.OpenSession_result(status=True)
         status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS)
-        serverProtocolVersion = TProtocolVersion.HIVE_CLI_SERVICE_PROTOCOL_V10
+        serverProtocolVersion = TProtocolVersion.HIVE_CLI_SERVICE_PROTOCOL_V6
         guid = str(hex(os.getpid()) ).encode('utf-8')
         # self.sessions.append(guid)
         # self.sessionOrd += 1
@@ -98,6 +98,7 @@ class ThriftProcessHandler:
         # result = TCLIService.OpenSession_result()
         # result.success = TCLIService.OpenSession_result()
         # result.success.success = True
+        # print(result)
         return result
     
     def CloseSession(self, req):
@@ -121,7 +122,9 @@ class ThriftProcessHandler:
         print("ExecuteStatement")
         # print(req)
         print(req.statement)
-        if not self.sparkConfJson:
+        # USE `default`
+        chkUseDb = re.match(r"USE \`\w+\`",req.statement)
+        if not self.sparkConfJson and not chkUseDb:
             self.sparkConfJson = commentParsing(req.statement)
             print(self.sparkConfJson)
         
@@ -275,13 +278,13 @@ class ThriftProcessHandler:
             typeEntry2 = TTypeEntry(primitiveEntry=TPrimitiveTypeEntry(type=TTypeId.BIGINT_TYPE))
             typeEntryNull = TTypeEntry(primitiveEntry=TPrimitiveTypeEntry(type=TTypeId.NULL_TYPE))
             col1 = TColumnDesc(columnName="idmeta",typeDesc=TTypeDesc(types=[typeEntry1]), position=1)
-            col2 = TColumnDesc(columnName="namesm",typeDesc=TTypeDesc(types=[typeEntry2]), position=2)
+            col2 = TColumnDesc(columnName="namesm",typeDesc=TTypeDesc(types=[typeEntry1]), position=2)
             # col1 = TColumnDesc(columnName="idmeta", position=1)
             # col2 = TColumnDesc(columnName="namesm", position=2)
             schema = TTableSchema(columns=[col1,col2])
             result = TGetResultSetMetadataResp(status=status, schema=schema)
             return result
-        
+
         status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS,
                             infoMessages="infoMessages33",
                             sqlState="ENDRUNNING")
@@ -299,8 +302,12 @@ class ThriftProcessHandler:
         # - status
         # - hasMoreRows
         # - results
-        rows = [TRow([])]
+        # rows = [TRow([])]
+        rows = []
         guid = req.operationHandle.operationId.guid
+        if self.sparkHndler[guid].colTColumnType == []:
+            self.GetResultSetMetadata(req)
+
         if guid not in self.sparkHndler.keys(): # or 추후에 query에 driver option을 바꾸는 명령/hint가 들어오면
             status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS,
                          infoMessages="infoMessages44",
@@ -325,7 +332,7 @@ class ThriftProcessHandler:
             results = TRowSet(
                 startRowOffset=0,
                 rows=rows,
-                columns=columns,
+                # columns=columns,
                 columnCount=1
             )
             # if columns == []:
@@ -340,6 +347,7 @@ class ThriftProcessHandler:
                          infoMessages="infoMessages44",
                          sqlState="ENDRUNNING")
         columns = self.sparkHndler[guid].getNextResultRow()
+        
         results = TRowSet(
             startRowOffset=0,
             rows=rows,
@@ -347,7 +355,7 @@ class ThriftProcessHandler:
             columnCount=1
         )
         result = TFetchResultsResp(status=status,hasMoreRows=False, results=results)
-        print(result)
+        # print(result)
         return result
         
     def GetDelegationToken(self, req):
