@@ -125,10 +125,11 @@ class ThriftProcessHandler:
         print(req.statement)
         # USE `default`
         chkUseDb = re.match(r"USE \`\w+\`",req.statement)
+        chkCurrDb = re.match(r"SELECT current_database()",req.statement)
         status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS,
                     infoMessages="infoMessages1111",
                     sqlState="RUNNING")
-        if not self.sparkConfJson and chkUseDb and not self.connDB: # 처음conn때 use default
+        if not self.sparkConfJson and ( chkUseDb or chkCurrDb ): # and not self.connDB: # 처음conn때 use default
             self.connDB = True
             return TExecuteStatementResp(status=status)
         elif not self.sparkConfJson: # conf 없을때
