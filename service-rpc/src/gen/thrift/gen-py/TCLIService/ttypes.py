@@ -6112,12 +6112,12 @@ class TGetOperationStatusResp(object):
             oprot.writeFieldEnd()
         if self.progressUpdateResponse is not None:
             oprot.writeFieldBegin('progressUpdateResponse', TType.STRUCT, 10)
-            print("TGetOperationStatusResp-write-progressUpdateResponse" + str(self.numModifiedRows))
+            print("TGetOperationStatusResp-write-progressUpdateResponse:" + str(self.numModifiedRows))
             # print(self.progressUpdateResponse)
             self.progressUpdateResponse.write(oprot)
             oprot.writeFieldEnd()
         if self.numModifiedRows is not None:
-            print("TGetOperationStatusResp-write-numModifiedRows" + str(self.numModifiedRows))
+            print("TGetOperationStatusResp-write-numModifiedRows:" + str(self.numModifiedRows))
             oprot.writeFieldBegin('numModifiedRows', TType.I64, 11)
             oprot.writeI64(self.numModifiedRows)
             oprot.writeFieldEnd()

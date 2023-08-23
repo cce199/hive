@@ -1420,10 +1420,13 @@ class Processor(Iface, TProcessor):
         oprot.trans.flush()
 
     def process_GetOperationStatus(self, seqid, iprot, oprot):
+        print("process_GetOperationStatus")
         args = GetOperationStatus_args()
         args.read(iprot)
         iprot.readMessageEnd()
         result = GetOperationStatus_result()
+        print("process_GetOperationStatus-result")
+        print(result)
         try:
             result.success = self._handler.GetOperationStatus(args.req)
             msg_type = TMessageType.REPLY
@@ -3353,7 +3356,8 @@ class GetOperationStatus_args(object):
         iprot.readStructBegin()
         while True:
             (fname, ftype, fid) = iprot.readFieldBegin()
-            if ftype == TType.STOP:
+            print(fname, ftype, fid)
+            if ftype == TType.STOP or ftype < 0:
                 break
             if fid == 1:
                 if ftype == TType.STRUCT:
@@ -3416,6 +3420,8 @@ class GetOperationStatus_result(object):
         iprot.readStructBegin()
         while True:
             (fname, ftype, fid) = iprot.readFieldBegin()
+            # print("GetOperationStatus_result-read")
+            # print(fname, ftype, fid)
             if ftype == TType.STOP:
                 break
             if fid == 0:
@@ -3430,6 +3436,8 @@ class GetOperationStatus_result(object):
         iprot.readStructEnd()
 
     def write(self, oprot):
+        print("GetOperationStatus_result-write")
+        # print(self.success)
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
