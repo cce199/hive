@@ -142,7 +142,7 @@ class ThriftProcessHandler:
         print(guid)
         if True:
             if guid not in self.sparkHndler.keys(): # or 추후에 query에 driver option을 바꾸는 명령/hint가 들어오면
-                self.sparkHndler[guid] = dataProcessSparkHandler(guid.decode(), test=True, sparkConf = self.sparkConfJson)
+                self.sparkHndler[guid] = dataProcessSparkHandler(guid.decode(), test=False, sparkConf = self.sparkConfJson)
             # sparkHndler.getSpark(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
             # time.sleep(20)
             if not self.sparkHndler[guid].hasSparkContext():
