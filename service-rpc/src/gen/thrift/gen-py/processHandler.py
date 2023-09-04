@@ -143,10 +143,11 @@ class dataProcessSparkHandler():
             else:
                 self.df = self.spark.sql(query)
         except Exception as e:
-            emp_RDD = self.spark.sparkContext.emptyRDD()
-            columns = StructType([])
-            self.df = self.spark.createDataFrame(data = emp_RDD,schema = columns)
+            # emp_RDD = self.spark.sparkContext.emptyRDD()
+            # columns = StructType([])
+            # self.df = self.spark.createDataFrame(data = emp_RDD,schema = columns)
             self.errMsg = str(e)
+            self.df = self.spark.createDataFrame([[self.errMsg]], ["error"])
             print("Error Query Execution ================")
             print(self.errMsg)
             
