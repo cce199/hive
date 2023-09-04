@@ -146,7 +146,7 @@ class dataProcessSparkHandler():
             emp_RDD = self.spark.sparkContext.emptyRDD()
             columns = StructType([])
             self.df = self.spark.createDataFrame(data = emp_RDD,schema = columns)
-            self.errMsg = e
+            self.errMsg = str(e)
             print("Error Query Execution ================")
             print(self.errMsg)
             
