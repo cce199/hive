@@ -154,6 +154,10 @@ class ThriftProcessHandler:
         # req -> TExecuteStatementReq(sessionHandle=TSessionHandle(sessionId=THandleIdentifier(guid=b'guid', secret=b'secret')), statement='select 1', confOverlay={}, runAsync=True, queryTimeout=0)
         # req.sessionHandle -> TSessionHandle(sessionId=THandleIdentifier(guid=b'guid', secret=b'secret'))
         # print(req.sessionHandle)
+        
+        status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS,
+                    infoMessages=self.sparkHndler[guid].errMsg,
+                    sqlState="RUNNING")
 
         # operationId = THandleIdentifier
         self.operationId  = req.sessionHandle.sessionId

@@ -4,6 +4,8 @@ from pyspark.sql import SparkSession
 from pyspark.conf import SparkConf
 from pyspark.context import SparkContext
 import pyspark
+from pyspark.sql.types import *
+
 # from pyspark_gateway import PysparkGateway
 
 class dataProcessHandler:
@@ -87,6 +89,7 @@ class dataProcessSparkHandler():
         self.colTColumnType = []
         self.currentRowOrd = 0
         self.testCnt = 0
+        self.errMsg = None
 
     def hasSparkContext(self):
         if self.sparkContext:
@@ -128,15 +131,25 @@ class dataProcessSparkHandler():
         # print(PysparkGateway.host)
     
     def executQuery(self, query):
-        if self.test:
-            self.df = self.spark.createDataFrame([["Alex", self.testCnt + 1],\
-                            ["Bob", self.testCnt + 2],\
-                            ["Cathy", self.testCnt + 3],\
-                            ["Doge", self.testCnt + 4]],\
-                            ["name", "age"])
-            self.testCnt += 5
-        else:
-            self.df = self.spark.sql(query)
+        try:
+            self.errMsg = None
+            if self.test:
+                self.df = self.spark.createDataFrame([["Alex", self.testCnt + 1],\
+                                ["Bob", self.testCnt + 2],\
+                                ["Cathy", self.testCnt + 3],\
+                                ["Doge", self.testCnt + 4]],\
+                                ["name", "age"])
+                self.testCnt += 5
+            else:
+                self.df = self.spark.sql(query)
+        except Exception as e:
+            emp_RDD = self.spark.sparkContext.emptyRDD()
+            columns = StructType([])
+            self.df = self.spark.createDataFrame(data = emp_RDD,schema = columns)
+            self.errMsg = e
+            print("Error Query Execution ================")
+            print(self.errMsg)
+            
         # self.resultRows = None
         # print(result)
         self.currentRowOrd = 0
