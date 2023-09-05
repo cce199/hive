@@ -46,6 +46,7 @@ from struct import pack
 # from pyspark.sql import SparkSession
 from thrift import Thrift
 # from sparkUtils import getParseSparkConf
+import argparse
 
 def commentParsing(statement):
     """_summary_
@@ -142,7 +143,7 @@ class ThriftProcessHandler:
         print(guid)
         if True:
             if guid not in self.sparkHndler.keys(): # or 추후에 query에 driver option을 바꾸는 명령/hint가 들어오면
-                self.sparkHndler[guid] = dataProcessSparkHandler(guid.decode(), test=False, sparkConf = self.sparkConfJson)
+                self.sparkHndler[guid] = dataProcessSparkHandler(guid.decode(), test=True, sparkConf = self.sparkConfJson)
             # sparkHndler.getSpark(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
             # time.sleep(20)
             if not self.sparkHndler[guid].hasSparkContext():
@@ -390,9 +391,21 @@ class ThriftProcessHandler:
         print("DownloadData")
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(prog='PythonHiveServer.py')
+    parser.add_argument('--session-timeout', default=1800000, #action='store_const',
+        help='session timeout(ms)')
+    parser.add_argument('--version', action='version', version='%(prog)s 0.1')
+    # parse_args = parser.parse_args(["--session-timeout"])
+    parse_args = parser.parse_args()
+    print(parse_args)
+    session_timeout = int(parse_args.session_timeout)
+    # if parser.parse_args(["--help"]):
+    #     print(parser.print_help())
+    #     exit()
+
     handler = ThriftProcessHandler()
     processor = TCLIService.Processor(handler)
-    transport = TSocket.TServerSocket(host='0.0.0.0', port=9091)
+    transport = TSocket.TServerSocket(host='0.0.0.0', port=9091, session_timeout=session_timeout)
     # tfactory = TTransport.TBufferedTransportFactory()
     tfactory = TTransport.TSaslClientTransportFactory()
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()
