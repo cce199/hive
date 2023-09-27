@@ -133,7 +133,7 @@ class ThriftProcessHandler:
         if not self.sparkConfJson and ( chkUseDb or chkCurrDb ): # and not self.connDB: # 처음conn때 use default
             self.connDB = True
             return TExecuteStatementResp(status=status)
-        elif not self.sparkConfJson: # conf 없을때
+        elif self.sparkConfJson == None: # conf 없을때
             self.sparkConfJson = commentParsing(req.statement)
             print(self.sparkConfJson)
         
@@ -184,6 +184,8 @@ class ThriftProcessHandler:
 
     def GetTables(self, req):
         print("GetTables")
+        print(req)
+        self.ExecuteStatement(req)
 
     def GetTableTypes(self, req):
         print("GetTableTypes")
