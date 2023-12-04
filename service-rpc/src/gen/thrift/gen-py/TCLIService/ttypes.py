@@ -10,7 +10,7 @@ from thrift.Thrift import TType, TMessageType, TFrozenDict, TException, TApplica
 from thrift.protocol.TProtocol import TProtocolException
 from thrift.TRecursive import fix_spec
 
-import sys
+import sys, os, time
 
 from thrift.transport import TTransport
 all_structs = []
@@ -4065,6 +4065,9 @@ class TExecuteStatementResp(object):
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
         print("TExecuteStatementResp-write")
+        print(self.status)
+        print(self.operationHandle)
+        print(os.getpid())
         oprot.writeStructBegin('TExecuteStatementResp')
         if self.status is not None:
             oprot.writeFieldBegin('status', TType.STRUCT, 1)
@@ -4076,6 +4079,8 @@ class TExecuteStatementResp(object):
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
+        print("TExecuteStatementResp-oprot")
+        print(oprot)        
 
     def validate(self):
         if self.status is None:

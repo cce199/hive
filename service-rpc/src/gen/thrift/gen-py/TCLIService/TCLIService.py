@@ -1206,10 +1206,15 @@ class Processor(Iface, TProcessor):
             logging.exception('Unexpected exception in handler')
             msg_type = TMessageType.EXCEPTION
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        # print(msg_type)
+        # print(seqid)
+        # print(result)
+        # print(oprot)
         oprot.writeMessageBegin("ExecuteStatement", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
+        # time.sleep(10)
 
     def process_GetTypeInfo(self, seqid, iprot, oprot):
         args = GetTypeInfo_args()

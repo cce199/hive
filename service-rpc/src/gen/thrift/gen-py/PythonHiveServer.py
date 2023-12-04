@@ -124,16 +124,19 @@ class ThriftProcessHandler:
         print("ExecuteStatement")
         # print(req)
         print(req.statement)
+        print(self.sparkConfJson)
         # USE `default`
         chkUseDb = re.match(r"USE \`\w+\`",req.statement)
         chkCurrDb = re.match(r"SELECT current_database()",req.statement)
         status = TStatus(statusCode=TStatusCode.SUCCESS_STATUS,
                     infoMessages="infoMessages1111",
                     sqlState="RUNNING")
-        if not self.sparkConfJson and ( chkUseDb or chkCurrDb ): # and not self.connDB: # 처음conn때 use default
+        if self.sparkConfJson == None and ( chkUseDb or chkCurrDb ): # and not self.connDB: # 처음conn때 use default
             self.connDB = True
+            print("ExecuteStatement init conn")
             return TExecuteStatementResp(status=status)
-        elif self.sparkConfJson == None: # conf 없을때
+        elif self.sparkConfJson == None: # conf 없을때. 첫 쿼리에만 해당
+            # or type(self.sparkConfJson) == dict and list(self.sparkConfJson.keys()) == []: # conf 없을때
             self.sparkConfJson = commentParsing(req.statement)
             print(self.sparkConfJson)
         
@@ -167,6 +170,7 @@ class ThriftProcessHandler:
             operationType=TOperationType.EXECUTE_STATEMENT,
             hasResultSet=True,
             modifiedRowCount=2 )
+        print("ExecuteStatement TExecuteStatementResp start")
         executeStatementResult = TExecuteStatementResp(status=status,
             operationHandle=operationHandle)
         return executeStatementResult
