@@ -136,7 +136,7 @@ class dataProcessSparkHandler():
             if self.test:
                 self.df = self.spark.createDataFrame([["Alex", self.testCnt + 1],\
                                 ["Bob", self.testCnt + 2],\
-                                ["Cathy", self.testCnt + 3],\
+                                [None, self.testCnt + 3],\
                                 ["Doge", self.testCnt + 4]],\
                                 ["name", "age"])
                 self.testCnt += 5
@@ -266,7 +266,7 @@ class dataProcessSparkHandler():
             # nullVal = b'[NULL]' if colVal == None else b''
             nullVal = b'\x00' if colVal == None else b''
             if colVal == None:
-                colVal = [] # values is []
+                colVal = [''] # values is []
             elif colType == 'string':
                 colVal = [bytes(str(colVal), 'utf-8')]
             else:
