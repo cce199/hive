@@ -265,7 +265,7 @@ class dataProcessSparkHandler():
         for (colType, colVal) in zip(self.colTColumnType, nextRow):
             nullVal = b'[NULL]' if colVal == None else b''
             if colVal == None:
-                colVal = [NULL] # values is []
+                colVal = [None] # values is []
             elif colType == 'string':
                 colVal = [bytes(str(colVal), 'utf-8')]
             else:
