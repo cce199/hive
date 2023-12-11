@@ -1160,6 +1160,7 @@ class Processor(Iface, TProcessor):
         oprot.writeMessageEnd()
         oprot.trans.flush()
         print("process_CloseSession-End")
+        raise TTransport.TTransportException
         print('------------------------------------------')
 
     def process_GetInfo(self, seqid, iprot, oprot):
