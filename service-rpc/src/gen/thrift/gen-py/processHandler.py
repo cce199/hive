@@ -267,7 +267,7 @@ class dataProcessSparkHandler():
             nullVal = b'\x00' if colVal == None else b''
             # nullValInt = b'\x00' if colVal == None and colType == 'string' else b''
             if colVal == None:
-                colVal = [b'\x00'] # values is []
+                colVal = [''] # values is []
             elif colType == 'string':
                 colVal = [bytes(str(colVal), 'utf-8')]
             else:
