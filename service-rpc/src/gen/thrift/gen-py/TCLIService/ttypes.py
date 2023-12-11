@@ -2209,8 +2209,8 @@ class TI32Column(object):
             oprot.writeFieldBegin('values', TType.LIST, 1)
             oprot.writeListBegin(TType.I32, len(self.values))
             for iter75 in self.values:
-                print("TI32Column-write")
-                print(str(iter75))
+                # print("TI32Column-write")
+                # print(str(iter75))
                 oprot.writeI32(iter75)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
