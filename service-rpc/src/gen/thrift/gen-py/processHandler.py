@@ -264,7 +264,8 @@ class dataProcessSparkHandler():
         #         rtnCols.append(colVal)
         for (colType, colVal) in zip(self.colTColumnType, nextRow):
             # nullVal = b'[NULL]' if colVal == None else b''
-            nullVal = b'\x00' if colVal == None and colType == 'string' else b''
+            nullVal = b'\x00' if colVal == None and colType == 'string' else None
+            # nullValInt = b'\x00' if colVal == None and colType == 'string' else b''
             if colVal == None:
                 colVal = [''] # values is []
             elif colType == 'string':
