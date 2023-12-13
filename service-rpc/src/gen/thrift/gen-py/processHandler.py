@@ -271,7 +271,7 @@ class dataProcessSparkHandler():
             # nullValInt = b'\x00' if colVal == None and colType == 'string' else b''
             if colVal == None: # and colType in ['string','binary','bool','byte']:
                 colVal = [b''] # values is []: row가 다 안나옴. [None]: 에러발생
-                colType = 'byte'
+                colType = 'string'
             # elif colVal == None:
             #     colVal = [b'\x00']
             #     colType = 'byte'
