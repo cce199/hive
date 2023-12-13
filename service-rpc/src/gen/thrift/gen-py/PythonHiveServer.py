@@ -146,7 +146,7 @@ class ThriftProcessHandler:
         print(guid)
         if True:
             if guid not in self.sparkHndler.keys(): # or 추후에 query에 driver option을 바꾸는 명령/hint가 들어오면
-                self.sparkHndler[guid] = dataProcessSparkHandler(guid.decode(), test=False, sparkConf = self.sparkConfJson)
+                self.sparkHndler[guid] = dataProcessSparkHandler(guid.decode(), test=True, sparkConf = self.sparkConfJson)
             # sparkHndler.getSpark(query="select count(*) from common.dw_eventlogall where base_date = date '2023-03-01'")
             # time.sleep(20)
             if not self.sparkHndler[guid].hasSparkContext():
@@ -339,7 +339,7 @@ class ThriftProcessHandler:
             else:
                 columns = [TColumn(stringVal=TStringColumn(values=[b"2023-03-01"],nulls=b""))
                         # ,TColumn(i32Val=TI32Column(values=[16121901, 16121], nulls=b'[NULL]') ,
-                        ,TColumn(i32Val=TI32Column(values=[self.testCnt], nulls=b'') ,
+                        ,TColumn(i32Val=TI32Column(values=[self.testCnt], nulls=b'NULL') ,
                                 #  binaryVal=TBinaryColumn(values=[b'', b''], nulls=b'')
                                  ) # b'\x00'
                         ]

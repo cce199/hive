@@ -135,7 +135,7 @@ class dataProcessSparkHandler():
             self.errMsg = None
             if self.test:
                 self.df = self.spark.createDataFrame([["Alex", self.testCnt + 1],\
-                                ["Bob", self.testCnt + 2],\
+                                ["Bob", None],\
                                 [None, self.testCnt + 3],\
                                 ["Doge", self.testCnt + 4]],\
                                 ["name", "age"])
@@ -263,11 +263,18 @@ class dataProcessSparkHandler():
         #     else:
         #         rtnCols.append(colVal)
         for (colType, colVal) in zip(self.colTColumnType, nextRow):
+            # [NULL]일때 dbeaber에서 효과있고 다른 문자는 의미없이 colVal참조하는듯
+            # 하지만 pyhive에서 [NULL]로 하면 에러
             # nullVal = b'[NULL]' if colVal == None else b''
-            nullVal = b'\x00' if colVal == None else b''
+            # nullVal = b'\x00' if colVal == None else b''
+            nullVal = b''
             # nullValInt = b'\x00' if colVal == None and colType == 'string' else b''
-            if colVal == None:
-                colVal = [''] # values is []
+            if colVal == None: # and colType in ['string','binary','bool','byte']:
+                colVal = [b''] # values is []: row가 다 안나옴. [None]: 에러발생
+                colType = 'byte'
+            # elif colVal == None:
+            #     colVal = [b'\x00']
+            #     colType = 'byte'
             elif colType == 'string':
                 colVal = [bytes(str(colVal), 'utf-8')]
             else:
